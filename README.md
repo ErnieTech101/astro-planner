@@ -27,13 +27,13 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 - **Prev / Tonight / Next** buttons to scan ahead through the season.  
 
 **Logging**
-- An **imaging log** for each member: date, object, site, number and length of subs, gain, filter, sky conditions, a star rating and notes.
-- <img width="882" height="262" alt="image" src="https://github.com/user-attachments/assets/e0904c7f-5863-4411-bec0-8e9d221f8642" />
-- Totals per object, with search and **CSV export**.
-- The planner marks every target "Not yet" or "1 h 15 m · 2 sessions", and can sort the ones you haven't imaged to the top.
+- An **imaging log** for each member: date, object, site, number and length of subs, gain, filter, sky conditions, a star rating and notes.  
+- <img width="882" height="258" alt="image" src="https://github.com/user-attachments/assets/e8ec5a98-2d86-4139-afff-19f6344d624d" />  
+- Totals per object, with search and **CSV export**.  
+- The planner marks every target "Not yet" or "1 h 15 m · 2 sessions", and can sort the ones you haven't imaged to the top.  
 
 **Accounts**
-- **Invite-only.** The admin creates single-use invite links; there's no public sign-up.
+- **Invite-only.** The admin creates single-use invite links; there's no public sign-up.  
 - **Multiple sites per member**, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button.
 - Settings follow you between devices.
 - Works on phones and desktops.
