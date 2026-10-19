@@ -1,6 +1,6 @@
 # ErnieTech's Astro Imaging Planner for 'Smart Scope' users!
 
-** *Here's the question: What can I image tonight with my little 'smart scope', from *my* yard, in the couple of hours I have?* **
+** Here's the question: What can I image tonight with my little 'smart scope', from *my* yard, in the couple of hours I have?**
 
 Astro Imaging Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other scopes. 
 
