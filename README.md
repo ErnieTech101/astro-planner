@@ -17,11 +17,12 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 **Planning**
 - **Your own sky box.** Set the azimuth and altitude range you can actually see. Windows that cross north, such as 330° to 30°, work too.
 - **Time in the window.** Each object's path is computed minute by minute across your session. An object is listed only if it stays inside your box for the minimum time you choose, from 30 minutes to 2 hours.
-<img width="941" height="189" alt="image" src="https://github.com/user-attachments/assets/a1dd59be-3da0-497f-a15b-f1efe7048a52" />
-- **Brightness limit**, plus a "just past your limit" list of objects up to 1.5 magnitudes fainter.
-- **Sky box chart** showing your window and each target's track across it, with 30-minute markers.
-- **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.
-- **Prev / Tonight / Next** buttons to scan ahead through the season.
+<img width="941" height="189" alt="image" src="https://github.com/user-attachments/assets/a1dd59be-3da0-497f-a15b-f1efe7048a52" />  
+- **Brightness limit**, plus a "just past your limit" list of objects up to 1.5 magnitudes fainter.  
+<img width="940" height="144" alt="image" src="https://github.com/user-attachments/assets/2f577c90-a49f-4d16-9cfb-14a71aba326e" />  
+- **Sky box chart** showing your window and each target's track across it, with 30-minute markers.  
+- **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.  
+- **Prev / Tonight / Next** buttons to scan ahead through the season.  
 
 **Logging**
 - An **imaging log** for each member: date, object, site, number and length of subs, gain, filter, sky conditions, a star rating and notes.
