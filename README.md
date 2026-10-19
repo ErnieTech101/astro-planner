@@ -1,14 +1,14 @@
-# Astro Imaging Planner
+# Welcome to Astro Imaging Planner
 
-**What can I image tonight, from *my* yard, in the two hours I have?**
+**The Big Question: What can I image tonight, from *my* yard, in the few hours I have?**
 
 Astro Imaging Planner is a small, invite-only web app for people imaging deep-sky objects with smart telescopes such as the Dwarf Mini, Dwarf 3 or Seestar. You describe the patch of sky you can actually see from your yard and your evening session, and it lists the Messier, Caldwell and NGC/IC objects that will stay in that window for as long as you need. Every member keeps an imaging log, and the log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting.
 
 It's built for a group of friends, with an unapologetically 1990s desktop look and a red night-vision mode for use at the telescope.
 
-![The planner window: session settings, sky box chart and target list](docs/screenshots/planner.png)
+<img width="772" height="881" alt="image" src="https://github.com/user-attachments/assets/db8e4ead-f33b-4a5a-91f3-c5e48587477b" />
 
-## Why
+## Why did we build it?
 
 Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one clear wedge of sky between the house and the trees, Bortle 8 skies, and a couple of hours after dinner. The question isn't "what's up tonight?" but "what will sit in *that* gap long enough to stack, and is it bright enough to be worth it?" This app answers exactly that question.
 
