@@ -5,7 +5,7 @@
 
 Astro Imaging Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other scopes. 
 
-Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted Bortle 8 skies, and a maybe couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture multiple images for stacking, and is it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
+Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted skies, and a maybe couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture multiple images for stacking, and is it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
 
 All you need to do is describe the patch of sky you can actually see from your yard, and the hours of your evening imaging session and it will list the Messier, NGC and other objects that will stay in that window for the time you indicate. 
 
