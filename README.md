@@ -38,12 +38,10 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 - **Settings** follow you between devices - desktop, tablets and phones.
 
 **At the telescope**
-- **Red Light mode** turns the whole interface black and red to protect your night vision.
+- **Red Light mode** turns the whole interface black and red to protect your night vision.  
+- **Works on mobile devices and tablets** - no app to install
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/df34f5b6-3462-48f0-af03-389272339cca" />
-
-**Works on mobile devices and tablets- no app to install
-- <img width="1344" height="2992" alt="image" src="https://github.com/user-attachments/assets/e0f4bcc3-c2f4-4eae-bc34-c5348932de11" />
 
 ## How Astro-Planner works -
 
