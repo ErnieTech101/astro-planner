@@ -2,8 +2,6 @@
 
 Version 1.1 · October 2026 · Dave Doler (K3DFD)
 
-The shareable, editable copy of this guide lives in Dave's Claude docs. This file is the copy that travels with the code.
-
 ## About this guide
 
 This guide is everything needed to run, back up, restore and rebuild the Astro Imaging Planner. The planner is an invite-only web app that lists the deep-sky objects each member can image from their own site and keeps their imaging log. It is written for the administrator (Dave) and for anyone who ever has to take over.
