@@ -21,7 +21,7 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 - **Brightness limit**, plus a "just past your limit" list of objects up to 1.5 magnitudes fainter.  
 - <img width="940" height="144" alt="image" src="https://github.com/user-attachments/assets/2f577c90-a49f-4d16-9cfb-14a71aba326e" />  
 - **Sky box chart** showing your window and each target's track across it, with 30-minute markers.
-- **Target List of Candidate of all the object that will be in your Sky Box during your session  
+- **Target List** of Candidate of all the object that will be in your Sky Box during your session  
 - **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.  
 - <img width="938" height="324" alt="image" src="https://github.com/user-attachments/assets/591e2bbf-2f4d-43b1-9ecb-fcdd60b5ca82" />
 - **Prev / Tonight / Next** buttons to scan ahead through the season.  
