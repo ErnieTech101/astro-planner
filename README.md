@@ -1,17 +1,18 @@
-# Astro Imaging Planner
+# ErnieTech's Astro Imaging Planner for 'Smart Scope' users!
 
-**What can I image tonight, from *my* yard, in the two hours I have?**
+**Here's the question: What can I image tonight with my little 'smart scope', from *my* yard, in the couple of hours I have?**
 
-Astro Imaging Planner is a small, invite-only web app for people imaging deep-sky objects with smart telescopes such as the Dwarf Mini, Dwarf 3 or Seestar. You describe the patch of sky you can actually see from your yard and your evening session, and it lists the Messier and bright NGC objects that will stay in that window for as long as you need. Every member keeps an imaging log, and the log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting.
+Astro Imaging Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other scopes. 
 
-It's built for a group of friends, with an unapologetically 1990s desktop look and a red night-vision mode for use at the telescope.
+Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted Bortle 8 skies, and a maybe couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture multiple images for stacking, and is it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
+
+All you need to do is describe the patch of sky you can actually see from your yard, and the hours of your evening imaging session and it will list the Messier, NGC and other objects that will stay in that window for the time you indicate. 
+
+Every member of the ErnieTech's Astro-Imaging group keeps their own imaging log - and that log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting.
+
+It's an invite-only web app I built for a group of astronomy-minded friends, with an unapologetically 1990s Windows Vista desktop look and a red night-vision mode for use at the telescope.
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/a95de790-25c7-4fc2-92bc-821f0e52a97b" />
-
-
-## Why
-
-Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one clear wedge of sky between the house and the trees, Bortle 8 skies, and a couple of hours after dinner. The question isn't "what's up tonight?" but "what will sit in *that* gap long enough to stack, and is it bright enough to be worth it?" This app answers exactly that question.
 
 ## Features
 
@@ -39,25 +40,21 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/df34f5b6-3462-48f0-af03-389272339cca" />
 
+## How Astro-Planner works -
 
-## How it works
-
-All the astronomy runs in the browser, in [`static/astro.js`](static/astro.js), with no external services:
-
-1. Catalog positions (J2000) are precessed to the session date.
+1. Catalog positions are Epoch J2000 are processed to the desired session date.
 2. For every minute of the session, local sidereal time gives each object's hour angle, which converts to altitude and azimuth for the site.
-3. The app finds each object's longest continuous run inside the sky box and keeps those that meet the minimum time and magnitude limit.
-4. For the RA/Dec readouts, the sky box's edges are converted the other way, from alt/az back to J2000 RA/Dec.
+3. The app finds each object's longest continuous run inside the user's defined sky box and keeps those that meet the minimum time and magnitude limit.
+4. For the RA/Dec readouts, the sky box's edges are converted the other way, from alt/az back to Epoch J2000 RA/Dec.
+5. Everything runs in your Chrome/Firefox/Edge or other browser. No external services, apps or helpers are needed.
+6. The approximations (simple precession, no refraction, no nutation) are accurate to well under a degree. That's far finer than any backyard sky box.
+7. The server only stores accounts, sites, settings and logs. It never does any sky math.
 
-The approximations (simple precession, no refraction, no nutation) are accurate to well under a degree. That's far finer than any backyard sky box.
-
-The server only stores accounts, sites, settings and logs. It never does any sky math.
-
-## Tech stack
+## The Tech Stack -
 
 - **Backend:** Python 3.9+, [Flask](https://flask.palletsprojects.com/), SQLite (a single file), gunicorn
 - **Frontend:** plain HTML, CSS and JavaScript, with no framework and no build step
-- **Hosting:** any Linux server behind nginx or Caddy. The reference install runs on a small Hetzner Cloud VM with HTTPS from Let's Encrypt.
+- **Hosting:** any Linux server using nginx or Caddy web services engines. Install and runs on a small VPS like the Hetzner Cloud VM with HTTPS from Let's Encrypt.
 - **Dependencies:** `flask`, `gunicorn`, `tzdata`. That's all.
 
 ## Quick start (local)
@@ -72,7 +69,7 @@ python manage.py create-admin yourname --name "Your Name" --lat 40.08 --lon -75.
 flask --app app run --debug
 ```
 
-Open http://127.0.0.1:5000 and sign in. Click **Admin**, then **Create Invite**, to add another account.
+Run locally from the server - http://127.0.0.1:5000 and sign in, or run remotely from https://'yourdomain':5000, click **Admin**, then **Create Invite** to add another account.
 
 ## Deploying
 
@@ -87,19 +84,21 @@ The [Administrator's Guide](ADMIN.md) covers the full production setup step by s
 ## Project layout
 
 ```
-app.py              Flask app: pages and JSON API
-db.py               SQLite schema and helpers
-manage.py           Admin CLI: invites, users, password resets, backup, verify
+/opt/astro-panner
+app.py                    Flask app: pages and JSON API
+db.py                     SQLite schema and helpers
+manage.py                 Admin CLI: invites, users, password resets, backup, verify
 static/
-  astro.js          Catalog and sky math
-  app.js            Browser UI
-  retro.css         The retro theme and red-light mode
-templates/          Main page, sign-in and sign-up
+  astro.js                Catalog and sky math
+  app.js                  Browser UI
+  retro.css               The retro theme and red-light mode
+templates/                Main page, sign-in and sign-up
 deploy/
   astro-planner.service   systemd unit
   backup.sh / restore.sh  Nightly backup bundle and one-command restore
   windows/                PowerShell scripts that pull backups to a PC
-ADMIN.md            Administrator's Guide
+ADMIN.md                  Administrator's Guide
+venv/                     All the Python stuff
 ```
 
 ## Security
@@ -109,7 +108,6 @@ ADMIN.md            Administrator's Guide
 - CSRF tokens on forms, a custom-header check on API writes, rate-limited sign-in, and HTTP-only, SameSite, HTTPS-only session cookies.
 - The app runs as an unprivileged system user and listens only on localhost behind the reverse proxy.
 
-Found a problem? Please open an issue rather than posting details publicly.
 
 ## Roadmap
 
@@ -120,6 +118,10 @@ Found a problem? Please open an issue rather than posting details publicly.
 - Larger catalogs (Caldwell, Sharpless)
 - Thumbnails on log entries
 
+## Issues or problems?
+
+Found a problem? Please open an issue rather than posting details publicly.
+
 ## Version history
 
 | Version | Date | Changes |
@@ -129,7 +131,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Author
 
-Dave Doler K3DFD, Philadelphia. Pa.
+Dave Doler K3DFD, Philadelphia. Pa. k3dfd.radio@gmail.com
 
 ## License
 
