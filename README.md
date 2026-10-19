@@ -129,8 +129,8 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Author
 
-Dave Doler, K3DFD, Philadelphia.
+Dave Doler K3DFD, Philadelphia. Pa.
 
 ## License
 
-To be decided
+MIT
