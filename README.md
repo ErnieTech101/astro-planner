@@ -6,7 +6,8 @@ Astro Imaging Planner is a small, invite-only web app for people imaging deep-sk
 
 It's built for a group of friends, with an unapologetically 1990s desktop look and a red night-vision mode for use at the telescope.
 
-![The planner window: session settings, sky box chart and target list](docs/screenshots/planner.png)
+<img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/a95de790-25c7-4fc2-92bc-821f0e52a97b" />
+
 
 ## Why
 
