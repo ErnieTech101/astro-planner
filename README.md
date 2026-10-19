@@ -1,20 +1,18 @@
-# ErnieTech's Astro Imaging Planner for 'Smart Scope' users!
+# ErnieTech's Astro Planner for 'Smart Scope' users!
 
 **Here's the question: What can I image tonight with my little 'smart scope', from *my* yard, in the couple of hours I have?**
 ---
+Astro Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other.  
 
-Astro Imaging Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other scopes. 
+Most planning tools assume a dark site and an open horizon. In a light-polluted city or suburban backyard you might have one little clear 'box' of sky between the houses and the trees, and maybe a couple of hours after dinner to use your smart scope. So the question really isn't "what's up tonight?" but "what will be in *that* little box long enough to capture the multiple images needed for successful stacking, and is the selected object bright enough to be worthwhile?" Astro-Planner answers exactly that question.  
 
-Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted skies, and maybe a couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture the multiple images needed for successful stacking, and is the selected object it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
-
-All you need to do is describe a 'box' of sky you can actually see from your yard - what direction, how wide, how tall and high above the horizon it starts and the hours of your evening imaging session. Astro-Planner will list the Messier, NGC and other objects that will stay in that window for the time you need to do a successful imaging session. 
-
+All you need to do is describe that 'box' of sky you can actually see from your yard - what direction, how wide, how tall and high above the horizon the box starts and the hours of your evening imaging session. Astro-Planner will list the Messier, NGC and other objects that will stay in that window for the time you need to do a successful imaging session.  
 ---
-Every member of the ErnieTech's Astro-Imaging group keeps their own imaging log - and that log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting. It's an invite-only web app I built for a group of astronomy-minded friends, with an unapologetically 1990s Windows Vista desktop look and a red night-vision mode for use at the telescope.
+Every member of the ErnieTech's Astro-Imaging group maintains their own imaging log - and that log is used by the planner so you can see at a glance what you've already captured and what's still waiting. It's an invite-only web app built for a group of astronomy-minded people with an unapologetically 1990s Windows Vista desktop look, including a red night-vision mode for use at the telescope.
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/a95de790-25c7-4fc2-92bc-821f0e52a97b" />
 
-## Features
+## Astro-Planner's Main Features -
 
 **Planning**
 - **Your own sky box.** Set the azimuth and altitude range you can actually see. Windows that cross north, such as 330° to 30°, work too.
@@ -42,19 +40,19 @@ Every member of the ErnieTech's Astro-Imaging group keeps their own imaging log 
 
 ## How Astro-Planner works -
 
-1. Catalog positions are Epoch J2000 are processed to the desired session date.
+1. Catalog positions are Epoch J2000 processed to the desired session date.
 2. For every minute of the session, local sidereal time gives each object's hour angle, which converts to altitude and azimuth for the site.
 3. The app finds each object's longest continuous run inside the user's defined sky box and keeps those that meet the minimum time and magnitude limit.
-4. For the RA/Dec readouts, the sky box's edges are converted the other way, from alt/az back to Epoch J2000 RA/Dec.
-5. Everything runs in your Chrome/Firefox/Edge or other browser. No external services, apps or helpers are needed.
-6. The approximations (simple precession, no refraction, no nutation) are accurate to well under a degree. That's far finer than any backyard sky box.
-7. The server only stores accounts, sites, settings and logs. It never does any sky math.
+4. For the Right Ascension/Declination (RA/Dec) readouts, the sky box's edges are converted the other way, from alt/az back to Epoch J2000 RA/Dec.
+5. Everything runs in your Chrome/Firefox/Edge or other browser. No external services, apps or local helpers are needed.
+6. The approximations (simple precession, no refraction, no nutation) are accurate to well under a degree!
+7. The server stores each site, settings and log data.
 
 ## The Tech Stack -
 
 - **Backend:** Python 3.9+, [Flask](https://flask.palletsprojects.com/), SQLite (a single file), gunicorn
-- **Frontend:** plain HTML, CSS and JavaScript, with no framework and no build step
-- **Hosting:** any Linux server using nginx or Caddy web services engines. Install and runs on a small VPS like the Hetzner Cloud VM with HTTPS from Let's Encrypt.
+- **Frontend:** plain HTML, CSS and JavaScript.
+- **Hosting:** any Linux server using nginx or Caddy web services. Installs and runs on a small VPS like the Hetzner Cloud VM with HTTPS from Let's Encrypt.
 - **Dependencies:** `flask`, `gunicorn`, `tzdata`. That's all.
 
 ## Quick start (local)
@@ -103,11 +101,10 @@ venv/                     All the Python stuff
 
 ## Security
 
-- Passwords are stored as salted scrypt hashes.
-- Every query is scoped to the signed-in member. Members never see each other's sites or logs.
+- Passwords are encrypted.
+- Every query is unique to the signed-in user - who never see each other's sites or logs.
 - CSRF tokens on forms, a custom-header check on API writes, rate-limited sign-in, and HTTP-only, SameSite, HTTPS-only session cookies.
 - The app runs as an unprivileged system user and listens only on localhost behind the reverse proxy.
-
 
 ## Roadmap
 
