@@ -42,6 +42,10 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **What's New** window, shown once after each update.
 - **Admin tools:** members listed by last activity, inactive members (90 days) flagged with a badge on the Admin button, and per-member properties to reset a password, turn an account off, make another admin, or delete.
 
+**Help**
+- A built-in **Help** window (toolbar or <kbd>F1</kbd>) with 14 topics: getting started, measuring your sky box, reading the chart, filters, the Moon, the log, tips for imaging from town, a glossary and FAQ. Small **?** buttons open the matching topic.
+- **About** box with credits and the full version history.
+
 **At the telescope**
 - **Red Light mode** turns the whole interface black and red to protect your night vision.
 
@@ -113,6 +117,7 @@ static/
   astro.js          Sky math: positions, Sun, Moon, twilight
   catalog.json      726 objects built from OpenNGC
   app.js            Browser UI
+  help.js           Help topics
   retro.css         The retro theme and red-light mode
 templates/          Main page, sign-in and sign-up
 deploy/
@@ -135,7 +140,6 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Roadmap
 
-- In-app **Help** and **About** windows
 - Activity feed (members opt in to share their log entries) and a simple club bulletin board
 - Email or SMS digest of inactive members
 - Horizon profile (obstruction height every 10° of azimuth) instead of a rectangular box
@@ -148,6 +152,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.4.0 | 2026-10-19 | Help window (F1, search, ? buttons) and About box with version history |
 | 1.3.1 | 2026-10-19 | Club Stats counters restyled to match the window theme |
 | 1.3.0 | 2026-10-19 | Last-active tracking with inactive-member flag and Admin badge; Member Properties (reset password with forced change, turn off, make admin, delete); Club Stats; What's New window; `manage.py disable/enable`; automatic database upgrade |
 | 1.2.0 | 2026-10-19 | Full Messier, Caldwell and NGC/IC catalogs from OpenNGC (726 objects) with a Catalogs setting; surface brightness filter; Moon phase, rise/set, chart track and per-target Moon distance; sunset and twilight times; Red Light tints the toolbar icons |
