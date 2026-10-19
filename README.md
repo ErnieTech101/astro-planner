@@ -37,11 +37,8 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 **At the telescope**
 - **Red Light mode** turns the whole interface black and red to protect your night vision.
 
-<p>
-  <img src="docs/screenshots/imaging-log.png" alt="The imaging log window" width="49%">
-  <img src="docs/screenshots/red-light.png" alt="Red light mode" width="49%">
-</p>
-<p align="center"><img src="docs/screenshots/site-setup-phone.png" alt="Site setup on a phone" width="300"></p>
+<img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/df34f5b6-3462-48f0-af03-389272339cca" />
+
 
 ## How it works
 
