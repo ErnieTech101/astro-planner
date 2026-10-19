@@ -28,6 +28,7 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 
 **Logging**
 - An **imaging log** for each member: date, object, site, number and length of subs, gain, filter, sky conditions, a star rating and notes.
+- <img width="882" height="262" alt="image" src="https://github.com/user-attachments/assets/e0904c7f-5863-4411-bec0-8e9d221f8642" />
 - Totals per object, with search and **CSV export**.
 - The planner marks every target "Not yet" or "1 h 15 m · 2 sessions", and can sort the ones you haven't imaged to the top.
 
