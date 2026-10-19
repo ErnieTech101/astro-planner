@@ -148,6 +148,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.3.1 | 2026-10-19 | Club Stats counters restyled to match the window theme |
 | 1.3.0 | 2026-10-19 | Last-active tracking with inactive-member flag and Admin badge; Member Properties (reset password with forced change, turn off, make admin, delete); Club Stats; What's New window; `manage.py disable/enable`; automatic database upgrade |
 | 1.2.0 | 2026-10-19 | Full Messier, Caldwell and NGC/IC catalogs from OpenNGC (726 objects) with a Catalogs setting; surface brightness filter; Moon phase, rise/set, chart track and per-target Moon distance; sunset and twilight times; Red Light tints the toolbar icons |
 | 1.1.1 | 2026-10-19 | Sky box chart: a color per target matching the table, dashed lines for near-limit targets, haloed labels that avoid other tracks, row-hover highlighting, taller chart |
@@ -156,7 +157,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Author
 
-Dave Doler, K3DFD, Philadelphia. & Claude.ai Opus 5.5
+Dave Doler, K3DFD, Philadelphia.
 
 ## Credits
 
@@ -165,4 +166,5 @@ Catalog data: [OpenNGC](https://github.com/mattiaverga/OpenNGC) by Mattia Verga,
 ## License
 
 MIT
+
 
