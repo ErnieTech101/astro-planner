@@ -27,7 +27,7 @@ nginx receives every request and hands it to the app, which keeps all members' d
 
 ```
  Member's browser ──HTTPS──▶ nginx ──▶ App service (gunicorn :8077) ──▶ Database (planner.db)
-                                                                              │ nightly 3:17 am
+                                                                                               │ nightly 3:17 am
  Your Windows PC ◀──────── copied daily over SSH, 7:30 am ──────────── Server backups (30 days)
    (365 days)
 ```
