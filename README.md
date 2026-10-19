@@ -5,13 +5,12 @@
 
 Astro Imaging Planner is a small, invite-only web app for finding deep-sky object candidate for imaging with smart scopes like the Dwarf Mini, Dwarf 3, Seestar S30/S50 or other scopes. 
 
-Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted skies, and a maybe couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture multiple images for stacking, and is it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
+Most planning tools assume a dark site and an open horizon. In a city or suburban backyard you might have one little clear patch of sky between the houses and the trees, light-polluted skies, and maybe a couple of hours after dinner to use your scope. So the question really isn't "what's up tonight?" but "what will be in *that* little patch long enough to capture the multiple images needed for successful stacking, and is the selected object it bright enough to be worthwhile?" Astro-Planner answers exactly that question.
 
-All you need to do is describe the patch of sky you can actually see from your yard, and the hours of your evening imaging session and it will list the Messier, NGC and other objects that will stay in that window for the time you indicate. 
+All you need to do is describe a 'box' of sky you can actually see from your yard - what direction, how wide, how tall and high above the horizon it starts and the hours of your evening imaging session. Astro-Planner will list the Messier, NGC and other objects that will stay in that window for the time you need to do a successful imaging session. 
 
-Every member of the ErnieTech's Astro-Imaging group keeps their own imaging log - and that log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting.
-
-It's an invite-only web app I built for a group of astronomy-minded friends, with an unapologetically 1990s Windows Vista desktop look and a red night-vision mode for use at the telescope.
+---
+Every member of the ErnieTech's Astro-Imaging group keeps their own imaging log - and that log feeds back into the planner, so you can see at a glance what you've already captured and what's still waiting. It's an invite-only web app I built for a group of astronomy-minded friends, with an unapologetically 1990s Windows Vista desktop look and a red night-vision mode for use at the telescope.
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/a95de790-25c7-4fc2-92bc-821f0e52a97b" />
 
