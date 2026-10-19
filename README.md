@@ -1,4 +1,3 @@
-
 # Astro Imaging Planner
 
 **What can I image tonight, from *my* yard, in the two hours I have?**
@@ -37,6 +36,11 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Multiple sites per member**, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button.
 - Settings follow you between devices.
 - Works on phones and desktops.
+
+**Club**
+- **Club Stats** for everyone: members, log entries, hours of light collected, objects imaged and the club favorite. Totals only.
+- **What's New** window, shown once after each update.
+- **Admin tools:** members listed by last activity, inactive members (90 days) flagged with a badge on the Admin button, and per-member properties to reset a password, turn an account off, make another admin, or delete.
 
 **At the telescope**
 - **Red Light mode** turns the whole interface black and red to protect your night vision.
@@ -102,6 +106,7 @@ The [Administrator's Guide](ADMIN.md) covers the full production setup step by s
 
 ```
 app.py              Flask app: pages and JSON API
+changelog.py        Release notes for the What's New window
 db.py               SQLite schema and helpers
 manage.py           Admin CLI: invites, users, password resets, backup, verify
 static/
@@ -130,7 +135,9 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Roadmap
 
-- In-app **Help** window
+- In-app **Help** and **About** windows
+- Activity feed (members opt in to share their log entries) and a simple club bulletin board
+- Email or SMS digest of inactive members
 - Horizon profile (obstruction height every 10° of azimuth) instead of a rectangular box
 - "Fits the frame" check against each telescope's field of view
 - Sharpless and other emission-nebula catalogs for duo-band imaging
@@ -141,6 +148,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.3.0 | 2026-10-19 | Last-active tracking with inactive-member flag and Admin badge; Member Properties (reset password with forced change, turn off, make admin, delete); Club Stats; What's New window; `manage.py disable/enable`; automatic database upgrade |
 | 1.2.0 | 2026-10-19 | Full Messier, Caldwell and NGC/IC catalogs from OpenNGC (726 objects) with a Catalogs setting; surface brightness filter; Moon phase, rise/set, chart track and per-target Moon distance; sunset and twilight times; Red Light tints the toolbar icons |
 | 1.1.1 | 2026-10-19 | Sky box chart: a color per target matching the table, dashed lines for near-limit targets, haloed labels that avoid other tracks, row-hover highlighting, taller chart |
 | 1.1.0 | 2026-10-19 | Download Backup button; backup bundles with settings and manifest; restore script; Windows backup pull; `manage.py verify`; Administrator's Guide |
@@ -148,7 +156,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 ## Author
 
-Dave Doler, K3DFD, Philadelphia.
+Dave Doler, K3DFD, Philadelphia. & Claude.ai Opus 5.5
 
 ## Credits
 
@@ -156,4 +164,5 @@ Catalog data: [OpenNGC](https://github.com/mattiaverga/OpenNGC) by Mattia Verga,
 
 ## License
 
-To be decided.
+MIT
+
