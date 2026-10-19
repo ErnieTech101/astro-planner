@@ -1,6 +1,6 @@
 # Astro Imaging Planner — Administrator's Guide
 
-Version 1.3 · October 2026 · Dave Doler (K3DFD)
+Version 1.4 · October 2026 · Dave Doler (K3DFD)
 
 The shareable, editable copy of this guide lives in Dave's Claude docs. This file is the copy that travels with the code.
 
@@ -69,6 +69,9 @@ These are the steps that built the live server, in order. Follow them again to b
    sudo ./venv/bin/pip install -r requirements.txt
    sudo chown -R astro:astro /opt/astro-planner /var/lib/astro-planner /var/backups/astro-planner
    sudo chmod 750 /var/backups/astro-planner
+   # let the astro group (which includes dave) update the code, e.g. with FileZilla
+   sudo chmod -R g+rwX /opt/astro-planner
+   sudo find /opt/astro-planner -type d -exec chmod g+s {} +
    ```
 4. **Settings file.** Generate a secret key with `python3 -c "import secrets; print(secrets.token_hex(32))"`, then create `/etc/astro-planner.env`:
    ```
@@ -288,27 +291,24 @@ flask --app app run
 
 ## Updating the app
 
-An update replaces the code in `/opt/astro-planner` and restarts the app; the database is untouched. Take a backup first and keep the previous version, so you can roll back in a minute.
+An update replaces the code in `/opt/astro-planner` and restarts the app; the database is untouched and upgrades itself if a release needs it. Take a backup first and keep the previous version, so you can roll back in a minute.
 
-1. Upload the new project folder, unzipped fresh from the release zip, to your home directory on the server. Don't upload your Windows working folder: its Windows venv folder would overwrite the server's. These steps assume the folder is `~/astro-planner-new`.
-2. Back up, and keep the current code:
+Releases come as a zip, such as `astro-planner-1.4.0.zip`. Unzip it on your PC. Always upload from a freshly unzipped release, never from your Windows working folder: that folder's Windows `venv`, `planner.db` and `__pycache__` would overwrite or clutter the server's.
+
+1. **Back up, and keep the current code** (on the server):
    ```sh
    sudo -u astro /usr/local/bin/astro-planner-backup
    sudo rm -rf /opt/astro-planner.prev && sudo cp -a /opt/astro-planner /opt/astro-planner.prev
    ```
-3. Copy the new code over the old (the `venv` folder stays):
-   ```sh
-   sudo cp -r ~/astro-planner-new/* /opt/astro-planner/
-   cd /opt/astro-planner && sudo ./venv/bin/pip install -r requirements.txt
-   sudo chown -R astro:astro /opt/astro-planner
-   ```
-4. If the update changed `deploy/backup.sh`, reinstall it: `sudo cp /opt/astro-planner/deploy/backup.sh /usr/local/bin/astro-planner-backup`.
-5. Restart and check the version number: `sudo systemctl restart astro-planner && curl -s 127.0.0.1:8077/healthz`.
-6. Sign in and click around. Members' browsers pick up the new pages automatically.
+2. **Upload with FileZilla.** Connect to the server as `dave` (SFTP). On the PC side, open the unzipped `astro-planner` folder and select everything *inside* it. Drag that onto `/opt/astro-planner` on the server side. When asked about existing files, choose **Overwrite**, tick **Always use this action** and **Apply to current queue only**. Leave **Transfer → Transfer type** on **Auto**.
+3. **If `requirements.txt` changed** (the release notes say so), install the new packages: `cd /opt/astro-planner && sudo ./venv/bin/pip install -r requirements.txt`. No release so far has needed this.
+4. **If `deploy/backup.sh` changed**, reinstall it: `sudo cp /opt/astro-planner/deploy/backup.sh /usr/local/bin/astro-planner-backup`.
+5. **Restart and check the version:** `sudo systemctl restart astro-planner && curl -s 127.0.0.1:8077/healthz`. Restart promptly after uploading: until you do, the new pages are served while the old code is still running.
+6. **Sign in and click around.** Members get the What's New window once on their next visit.
 
-### What's New notes
+FileZilla uploads work because `/opt/astro-planner` is owned by the `astro` group, is group-writable, and passes the group on to new files (Installation record, step 3). If an upload is refused with "permission denied", rerun those three `chmod`/`find` lines from step 3.
 
-Each release's notes live in `changelog.py`, and the version number is `VERSION` near the top of `app.py`. When a member first loads a new version, a **What's New** window shows the notes for every release since their last visit, once. New members don't see it on their first day. Write the notes for members: what they'll notice and how to use it.
+Without FileZilla, upload the unzipped folder to your home directory (say `~/astro-planner-new`) and copy it in: `sudo cp -r ~/astro-planner-new/* /opt/astro-planner/`, then continue from step 3.
 
 **To roll back**, put the previous code back and restart:
 
@@ -316,6 +316,26 @@ Each release's notes live in `changelog.py`, and the version number is `VERSION`
 sudo rm -rf /opt/astro-planner && sudo mv /opt/astro-planner.prev /opt/astro-planner
 sudo systemctl restart astro-planner
 ```
+
+### Release notes, Help and version number
+
+When you change the app (or Claude does), keep three things in step:
+
+| What | Where | Notes |
+| --- | --- | --- |
+| Version number | `VERSION` near the top of `app.py` | Bump it on every release, even a small one. Browsers fetch fresh pages and styles when it changes, instead of using a cached copy. |
+| What's New notes | `changelog.py` | Shown once to each member after an update, newest first, and in **About → Version History**. Write them for members: what they'll notice and how to use it. A release with no entry shows no pop-up. |
+| Help topics | `static/help.js` | Plain HTML, one entry per topic. Update the matching topic whenever a feature changes. Topics marked `admin:true` are shown only to administrators. |
+
+### Updating the object catalog
+
+The 726 objects come from [OpenNGC](https://github.com/mattiaverga/OpenNGC) and live in `static/catalog.json`. OpenNGC is updated now and then. To refresh it, download `NGC.csv` and `addendum.csv` from OpenNGC's `database_files` folder, then on your PC, in the project folder:
+
+```sh
+python tools/build_catalog.py NGC.csv addendum.csv > static/catalog.json
+```
+
+It prints how many Messier and Caldwell objects it found (110 and 108) and notes any object it had to leave out. Then bump the version and upload as a normal update. The catalog's CC BY-SA 4.0 license requires the OpenNGC credit, which is in the About box; keep it there.
 
 ### Day-to-day checks
 
@@ -378,3 +398,5 @@ The planner holds little that's sensitive: user names, optional names and callsi
 | Pull backups to the PC now (**Windows**) | `Start-ScheduledTask -TaskName 'Astro Planner Backup Pull'` |
 | Test nginx after editing | `sudo nginx -t && sudo systemctl reload nginx` |
 | Test certificate renewal | `sudo certbot renew --dry-run` |
+| Roll back an update | `sudo rm -rf /opt/astro-planner && sudo mv /opt/astro-planner.prev /opt/astro-planner` then restart |
+
