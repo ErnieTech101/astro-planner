@@ -26,10 +26,9 @@ Commands in this guide run on the server over SSH unless marked **Windows**. Lin
 nginx receives every request and hands it to the app, which keeps all members' data in one database file. The app code and the data live in separate folders, so updating the code never touches anyone's data.
 
 ```
- Member's browser ──HTTPS──▶ nginx ──▶ App service (gunicorn :8077) ──▶ Database (planner.db)
-                                                                                               │ nightly 3:17 am
+ Member's browser ── HTTPS ──▶ nginx ──▶ app service (gunicorn :8077) ──▶ Database (planner.db)
+                                                                                               │ nightly 3:17 am cron
  Your Windows PC ◀──────── copied daily over SSH, 7:30 am ──────────── Server backups (30 days)
-   (365 days)
 ```
 
 | What | Where | Owned by |
