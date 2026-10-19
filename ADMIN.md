@@ -1,6 +1,8 @@
 # Astro Imaging Planner — Administrator's Guide
 
-Version 1.1 · October 2026 · Dave Doler (K3DFD)
+Version 1.3 · October 2026 · Dave Doler (K3DFD)
+
+The shareable, editable copy of this guide lives in Dave's Claude docs. This file is the copy that travels with the code.
 
 ## About this guide
 
@@ -26,9 +28,10 @@ Commands in this guide run on the server over SSH unless marked **Windows**. Lin
 nginx receives every request and hands it to the app, which keeps all members' data in one database file. The app code and the data live in separate folders, so updating the code never touches anyone's data.
 
 ```
- Member's browser ── HTTPS ──▶ nginx ──▶ app service (gunicorn :8077) ──▶ Database (planner.db)
-                                                                                               │ nightly 3:17 am cron
+ Member's browser ──HTTPS──▶ nginx ──▶ App service (gunicorn :8077) ──▶ Database (planner.db)
+                                                                              │ nightly 3:17 am
  Your Windows PC ◀──────── copied daily over SSH, 7:30 am ──────────── Server backups (30 days)
+   (365 days)
 ```
 
 | What | Where | Owned by |
@@ -107,13 +110,38 @@ These are the steps that built the live server, in order. Follow them again to b
 
 ## Members and invites
 
-Members join only with an invite code, and each code works once. Most everyday admin happens in the app's **Admin** window; the rest uses `manage.py` on the server.
+Members join only with an invite code, and each code works once. Day-to-day member administration happens in the app's **Admin** window; the server commands below are there as a backup.
 
-**Inviting someone (in the app).** Click **Admin**, type who it's for, and click **Create Invite**. Then click **Copy Sign-up Link** and send that link by email or text. It opens the sign-up page with the code already filled in. On first sign-in, the new member is asked to set up their site.
+**Inviting someone.** Click **Admin**, type who it's for, and click **Create Invite**. Then click **Copy Sign-up Link** and send that link by email or text. It opens the sign-up page with the code already filled in. On first sign-in, the new member is asked to set up their site.
 
 **Revoking an unused invite.** In **Admin**, click **Revoke** beside it. Used invites stay listed as a record of who joined with which code.
 
-**Server commands.** These all start with the same long prefix, so set up a shortcut once by adding this line to the end of `~/.bashrc` on the server, then log out and back in:
+### Who's active
+
+The **Members** list in **Admin** shows each member's last activity, last log entry and entry count, with the least recently active at the top. "Last active" is the latest of their last page visit (recorded at most hourly), sign-in, log entry, or the day they joined. Last visit matters more than last sign-in, because members stay signed in for 90 days.
+
+A member with no activity for **90 days** is marked **Inactive**, and the **Admin** button on the toolbar shows a red badge with the count. The flag clears by itself the next time they visit. To use a different threshold, add `AIP_INACTIVE_DAYS=60` (for example) to `/etc/astro-planner.env` and restart the app.
+
+### Member properties
+
+Click **Properties…** beside a member to see their details and act on the account:
+
+| Button | What it does |
+| --- | --- |
+| **Reset Password** | Shows a temporary password such as `XQ8J-W29U-K6WJ`. Give it to the member privately. Their old password stops working, and at next sign-in they're asked to choose a new one. |
+| **Turn Off / Turn On** | Stops a member signing in without deleting anything. Takes effect at once, even if they're signed in. Turned-off members don't count in Club Stats. |
+| **Make Admin / Remove Admin** | Gives or removes the **Admin** button. A second admin is a good idea in case you're away. |
+| **Delete…** | Deletes the member, their sites and their log. You type their user name to confirm. Back up first; this can only be undone by a restore. |
+
+You can't turn off, demote or delete your own account, so the site always keeps an administrator.
+
+### Club Stats
+
+The **Club Stats** button shows every member the club's totals: members, members active in the last 30 days, log entries, hours of light collected, different objects imaged, nights logged, and the club favorite (the object the most members have imaged). It shows totals only, never anyone's individual log.
+
+### Server commands
+
+These all start with the same long prefix, so set up a shortcut once by adding this line to the end of `~/.bashrc` on the server, then log out and back in:
 
 ```sh
 alias aip='sudo -u astro env AIP_DB=/var/lib/astro-planner/planner.db /opt/astro-planner/venv/bin/python /opt/astro-planner/manage.py'
@@ -121,12 +149,12 @@ alias aip='sudo -u astro env AIP_DB=/var/lib/astro-planner/planner.db /opt/astro
 
 | To | Run | Notes |
 | --- | --- | --- |
-| List members | `aip users` | Log counts and last sign-in for each |
+| List members | `aip users` | Least recently seen first, with log counts and status |
 | List invites | `aip invites` | Shows who used each code |
 | Make invite codes | `aip invite --note "for Josh"` | Add `-n 5` for five codes |
-| Reset a forgotten password | `aip reset-password josh` | You type the new password; give it to them privately and they can change it under **Account** |
-| Remove a member and all their data | `aip delete-user josh` | Asks you to type the name to confirm. Back up first; this can't be undone except by a restore |
-| Make another admin | not built yet | Can be added if needed |
+| Set a password | `aip reset-password josh` | You type the new password. Useful if you're locked out of the web Admin window yourself |
+| Turn an account off or on | `aip disable josh` / `aip enable josh` | Same as the buttons in Member Properties |
+| Remove a member and all their data | `aip delete-user josh` | Asks you to type the name to confirm |
 
 ## Backups
 
@@ -278,6 +306,10 @@ An update replaces the code in `/opt/astro-planner` and restarts the app; the da
 5. Restart and check the version number: `sudo systemctl restart astro-planner && curl -s 127.0.0.1:8077/healthz`.
 6. Sign in and click around. Members' browsers pick up the new pages automatically.
 
+### What's New notes
+
+Each release's notes live in `changelog.py`, and the version number is `VERSION` near the top of `app.py`. When a member first loads a new version, a **What's New** window shows the notes for every release since their last visit, once. New members don't see it on their first day. Write the notes for members: what they'll notice and how to use it.
+
 **To roll back**, put the previous code back and restart:
 
 ```sh
@@ -306,7 +338,8 @@ Most problems come down to one of three things: the app isn't running, a setting
 | Sign-in page just reloads; can't stay signed in | Site visited over `http://` while `AIP_SECURE_COOKIES=1` | Use the `https://` address. If it still happens, check that the nginx site sets `X-Forwarded-Proto` |
 | Everyone signed out after a restart | `AIP_SECRET_KEY` missing or changed in `/etc/astro-planner.env` | Put the original key back. It's in every backup bundle's `astro-planner.env` |
 | "Too many failed attempts" | 10 wrong passwords from one address in 15 minutes | Wait 15 minutes, or `sudo systemctl restart astro-planner` to clear the counter |
-| Member forgot their password | Forgotten password | `aip reset-password <name>` |
+| Member forgot their password | Forgotten password | **Admin** → **Properties…** → **Reset Password** |
+| A member can't sign in: "This account is turned off" | Account turned off | **Admin** → **Properties…** → **Turn On** |
 | "Invite code isn't valid" | Code already used, revoked or mistyped | Create a new invite and send the link rather than the code |
 | A member's times look wrong | Wrong time zone on their site | They fix it under **Sites** (admins can't see members' sites) |
 | `pull-log.txt` says **FAILED** | PC offline, SSH key not accepted, or `dave` not in the `astro` group | In PowerShell, try `ssh dave@astro-planner.ernietech.net ls /var/backups/astro-planner`; its error message names the problem |
@@ -320,7 +353,7 @@ Most problems come down to one of three things: the app isn't running, a setting
 The planner holds little that's sensitive: user names, optional names and callsigns, approximate observing locations, and imaging logs. It still protects them properly.
 
 - **Passwords** are stored only as salted scrypt hashes. Nobody, the admin included, can read a member's password.
-- **Privacy between members.** Every database query is limited to the signed-in member, so members can't see each other's sites or logs. The admin sees only names, callsigns, sign-in times and log counts.
+- **Privacy between members.** Every database query is limited to the signed-in member, so members can't see each other's sites or logs. The admin sees only names, callsigns, activity dates and log counts. Club Stats shows totals only.
 - **Sign-in protection.** Forms carry anti-forgery tokens, and changes made through the app require a header other websites can't send. Sign-in is limited to 10 failures per 15 minutes per address.
 - **Cookies** are HTTP-only, same-site and HTTPS-only, and stay valid for 90 days.
 - **The secret key** signs everyone's sign-in cookie. Anyone holding it could pose as any member, so the settings file and the backup bundles must stay private.
