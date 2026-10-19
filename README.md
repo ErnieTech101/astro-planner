@@ -43,7 +43,7 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 
 <img width="956" height="780" alt="image" src="https://github.com/user-attachments/assets/df34f5b6-3462-48f0-af03-389272339cca" />
 
-## How Astro-Planner works -
+## Operational Specifics -
 
 1. Catalog positions are Epoch J2000 processed to the desired session date.
 2. For every minute of the session, local sidereal time gives each object's hour angle, which converts to altitude and azimuth for the site.
@@ -60,7 +60,7 @@ Every member of the ErnieTech's Astro-Imaging group maintains their own imaging 
 - **Hosting:** any Linux server using nginx or Caddy web services. Installs and runs on a small VPS like the Hetzner Cloud VM with HTTPS from Let's Encrypt.
 - **Dependencies:** `flask`, `gunicorn`, `tzdata`. That's all.
 
-## Quick start (local)
+## Install Astro-Planner on your own Linux web server
 
 ```sh
 git clone <this repo>
