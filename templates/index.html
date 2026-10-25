@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Astro Imaging Planner</title>
+<link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ url_for('static', filename='retro.css') }}?v={{ VERSION }}">
+</head>
+<body>
+<script>try{if(localStorage.getItem("aip-red")==="1")document.body.classList.add("red")}catch(e){}</script>
+<div class="win">
+  <div class="titlebar">
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="9" width="7" height="4" fill="#c0c0c0" transform="rotate(-30 4 11)"/><rect x="6" y="13" width="2" height="3" fill="#808080"/><circle cx="13" cy="3" r="1" fill="#ffff00"/><circle cx="10" cy="1.5" r=".7" fill="#fff"/></svg>
+    <span class="tt">Astro Imaging Planner — <span id="sitetitle"></span></span>
+    <span class="who" id="who">{{ me['display_name'] or me['username'] }}</span>
+  </div>
+
+  <div class="toolbar" role="toolbar" aria-label="Tools">
+    <button class="tb" id="prev" type="button" title="Previous night">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="18" fill="#fff" stroke="#000"/><rect x="2" y="4" width="20" height="5" fill="#c00000" stroke="#000"/><path d="M15 12 9 16l6 4z" fill="#000080"/></svg>Prev</button>
+    <button class="tb" id="today" type="button" title="Tonight">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" fill="#000080"/><path d="M14 5a7 7 0 1 0 5 12 6 6 0 0 1-5-12z" fill="#ffff00"/><circle cx="5" cy="5" r="1" fill="#fff"/><circle cx="18" cy="20" r="1" fill="#fff"/></svg>Tonight</button>
+    <button class="tb" id="next" type="button" title="Next night">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="18" fill="#fff" stroke="#000"/><rect x="2" y="4" width="20" height="5" fill="#c00000" stroke="#000"/><path d="M9 12l6 4-6 4z" fill="#000080"/></svg>Next</button>
+    <button class="tb" id="red" type="button" aria-pressed="false" title="Red light mode">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8l2 10H6z" fill="#ff2a1a" stroke="#000"/><rect x="9" y="13" width="6" height="8" fill="#808080" stroke="#000"/></svg>Red Light</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button class="tb" id="newlog" type="button" title="Add an imaging log entry">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="2" width="15" height="20" fill="#fff" stroke="#000"/><path d="M6 7h9M6 10h9M6 13h6" stroke="#000080"/><path d="M13 20l1-4 7-7 3 3-7 7z" fill="#ffff00" stroke="#000"/></svg>Log Entry</button>
+    <button class="tb" id="mylog" type="button" title="My imaging log">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" fill="#800000" stroke="#000"/><rect x="7" y="2" width="1" height="20" fill="#000"/><rect x="10" y="6" width="8" height="4" fill="#ffff00" stroke="#000"/></svg>My Log</button>
+    <button class="tb" id="setup" type="button" title="Setup: your sites and equipment">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="15" height="6" rx="1" transform="rotate(-25 10 8)" fill="#000080" stroke="#000"/><rect x="16" y="1.5" width="4" height="6" transform="rotate(-25 18 4.5)" fill="#c0c0c0" stroke="#000"/><path d="M11 12 6 23M11 12l5 11M11 12v11" stroke="#000" stroke-width="1.6" fill="none"/><circle cx="11" cy="12" r="1.8" fill="#c00000" stroke="#000"/></svg>Setup</button>
+    <button class="tb" id="stats" type="button" title="Club totals">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v5a6 6 0 0 1-12 0z" fill="#ffcc00" stroke="#000"/><path d="M6 5H3v2a3 3 0 0 0 3 3M18 5h3v2a3 3 0 0 1-3 3" fill="none" stroke="#000"/><rect x="11" y="14" width="2" height="4" fill="#806000"/><rect x="7" y="18" width="10" height="3" fill="#804000" stroke="#000"/></svg>Club Stats</button>
+    <button class="tb" id="account" type="button" title="My account">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="5" fill="#ffcc99" stroke="#000"/><path d="M3 23c0-6 4-9 9-9s9 3 9 9z" fill="#000080" stroke="#000"/></svg>Account</button>
+    {% if me['is_admin'] %}
+    <button class="tb" id="admin" type="button" title="Invites and members"><span class="badge" id="adminbadge" hidden></span>
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="#ffff00" stroke="#000"/><circle cx="8" cy="8" r="2" fill="#c0c0c0" stroke="#000"/><path d="M11 11l10 10-2 2-2-2-2 2-2-2 2-2-5-5z" fill="#ffff00" stroke="#000"/></svg>Admin</button>
+    {% endif %}
+    <span class="sep" aria-hidden="true"></span>
+    <button class="tb" id="help" type="button" title="Help (F1)">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" fill="#000080" stroke="#000"/><rect x="6.5" y="2" width="1.2" height="20" fill="#c0c0c0"/><path d="M11 9a3 3 0 1 1 4 2.8c-.8.4-1 .9-1 1.7V15" fill="none" stroke="#ffff00" stroke-width="2.2"/><rect x="12.9" y="16.6" width="2.2" height="2.2" fill="#ffff00"/></svg>Help</button>
+    <button class="tb" id="about" type="button" title="About this planner">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#fff" stroke="#000080" stroke-width="2"/><rect x="10.8" y="10" width="2.6" height="8" fill="#000080"/><circle cx="12.1" cy="6.8" r="1.6" fill="#000080"/></svg>About</button>
+    <button class="tb" id="logoff" type="button" title="Sign out">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="12" height="20" fill="#804000" stroke="#000"/><circle cx="13" cy="12" r="1" fill="#ffff00"/><path d="M17 12h6M20 9l3 3-3 3" stroke="#000" fill="none" stroke-width="2"/></svg>Log Off</button>
+  </div>
+
+  <div class="body" id="main">
+    <fieldset>
+      <legend>Session <button class="qbtn" type="button" data-help="plan" title="Help: Planning a session" aria-label="Help: Planning a session">?</button></legend>
+      <div class="grid">
+        <label class="f"><span>Date (night of):</span><input type="date" id="date"></label>
+        <div class="f span2"><span>From / To:</span><div class="pair"><select id="t0" aria-label="Start time"></select><select id="t1" aria-label="End time"></select></div><span class="nm" id="lstinfo" title="Local sidereal time: the right ascension crossing your meridian (due south)"></span></div>
+        <label class="f"><span>Site:</span><select id="site"></select></label>
+        <label class="f"><span>Scope:</span><select id="scope"></select></label>
+      </div>
+      <div class="siteline"><span id="siteinfo"></span><button class="btn sm" id="editsites" type="button">Edit Sites…</button></div>
+      <div class="siteline"><span id="scopeinfo"></span><button class="btn sm" id="editscopes" type="button">Edit Equipment…</button></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Tonight's sky <button class="qbtn" type="button" data-help="moon" title="Help: The Moon and darkness" aria-label="Help: The Moon and darkness">?</button></legend>
+      <div class="skyrow"><span id="moonicon" aria-hidden="true"></span><div class="stack small" id="skyinfo"></div></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Filters <button class="qbtn" type="button" data-help="filters" title="Help: Filters and catalogs" aria-label="Help: Filters and catalogs">?</button></legend>
+      <div class="grid">
+        <label class="f"><span>Min. time in window:</span><select id="dur">
+          <option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">1 hour</option>
+          <option value="90">1½ hours</option><option value="120">2 hours</option></select></label>
+        <label class="f"><span>Magnitude limit:</span><select id="mag"></select></label>
+        <label class="f"><span>Surface brightness:</span><select id="sb">
+          <option value="0">Any</option><option value="21">21 or brighter</option><option value="22">22 or brighter</option>
+          <option value="23">23 or brighter</option><option value="24">24 or brighter</option></select></label>
+        <label class="f"><span>Moon:</span><select id="moonrule">
+          <option value="show">Show distance only</option><option value="hide">Hide targets it washes out</option></select></label>
+        <div class="f span2"><span>Catalogs:</span><div class="inline">
+          <label class="chk"><input type="checkbox" id="cat_M"> Messier</label>
+          <label class="chk"><input type="checkbox" id="cat_C"> Caldwell</label>
+          <label class="chk"><input type="checkbox" id="cat_N"> NGC / IC</label></div></div>
+      </div>
+      <p class="hint">Surface brightness (magnitude per square arcsecond) applies to galaxies and nebulae. A big galaxy spreads its light thin, so it can be hard to image from a city even when its magnitude looks bright. Lower numbers are brighter.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Sky box chart <button class="qbtn" type="button" data-help="chart" title="Help: Reading the chart" aria-label="Help: Reading the chart">?</button></legend>
+      <div class="showrow"><b>Show:</b>
+        <label><input type="checkbox" id="show_const" checked> Constellations</label>
+        <label><input type="checkbox" id="show_stars" checked> Stars</label>
+        <label><input type="checkbox" id="show_mer" checked> Meridian</label></div>
+      <div class="sunken" id="chart"></div>
+      <div class="legend" id="legend"></div>
+      <p class="hint">Yellow box = your clear sky. Each target has its own color, matching the swatch in the tables below; dashed lines are just past your limit. Each track starts with a symbol for the object's type, at its place at session start; small squares mark every 30 minutes after that. The gray line with the round marker is the Moon. The faint stars, constellation figures and dashed meridian show the sky at session start. Point at a table row to highlight its track.</p>
+      <p class="hint" id="cur">Point at the chart to read RA/Dec at that spot (at session start).</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Your window in sky coordinates (J2000)</legend>
+      <div class="sunken"><table>
+        <thead><tr><th>Time</th><th>LST</th><th>Center RA / Dec</th><th>RA covers</th><th>Dec covers</th></tr></thead>
+        <tbody id="win"></tbody>
+      </table></div>
+      <p class="hint">Your window is fixed to the ground, so the sky slides through it. RA advances about one hour for every hour of clock time, while the Dec range stays the same. LST (local sidereal time) is the RA crossing due south at that moment.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Targets <button class="qbtn" type="button" data-help="plan" title="Help: Planning a session" aria-label="Help: Planning a session">?</button></legend>
+      <div class="inline" style="margin-bottom:8px"><label class="chk"><input type="checkbox" id="unimaged"> Not-yet-imaged first</label></div>
+      <div class="sunken"><table>
+        <thead><tr><th>Object</th><th>Mag</th><th title="Apparent size, and how it fits your scope's frame">Size / frame</th><th>RA / Dec (J2000)</th><th class="hwin">In window</th><th>Alt range</th><th>Transit</th><th>Moon</th><th>Your log</th><th></th></tr></thead>
+        <tbody id="list"></tbody>
+      </table></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Just past your limit (up to 1.5 mag fainter)</legend>
+      <div class="sunken"><table>
+        <thead><tr><th>Object</th><th>Mag</th><th title="Apparent size, and how it fits your scope's frame">Size / frame</th><th>RA / Dec (J2000)</th><th class="hwin">In window</th><th>Alt range</th><th>Transit</th><th>Moon</th><th>Your log</th><th></th></tr></thead>
+        <tbody id="near"></tbody>
+      </table></div>
+      <p class="hint">Clusters often image fine here; galaxies and faint nebulae usually struggle under bright suburban and city skies.</p>
+    </fieldset>
+
+    <fieldset class="notes">
+      <legend>Notes</legend>
+      <p>Positions are J2000 catalog coordinates precessed to the session date. Refraction is ignored; it lifts objects about 0.05° at 20° altitude. Moon and Sun positions are accurate to about a quarter of a degree and a minute of time.</p>
+      <p>Catalog data: <a href="https://github.com/mattiaverga/OpenNGC" target="_blank" rel="noopener">OpenNGC</a> by Mattia Verga, licensed CC-BY-SA 4.0. Chart stars and constellation figures: <a href="https://github.com/ofrohn/d3-celestial" target="_blank" rel="noopener">d3-celestial</a> by Olaf Frohn, BSD 3-Clause license.</p>
+      <p>Catalog magnitude is total brightness. A big nebula or galaxy spreads that light out, so it looks fainter per pixel than a compact cluster of the same magnitude.</p>
+    </fieldset>
+  </div>
+
+  <div class="status">
+    <div id="s1">Loading…</div><div id="s2"></div><div id="s3"></div>
+  </div>
+</div>
+
+<div id="dlg" class="overlay" hidden></div>
+<datalist id="catlist"></datalist>
+
+
+<script>window.AIP_VERSION="{{ VERSION }}";</script>
+<script src="{{ url_for('static', filename='astro.js') }}?v={{ VERSION }}"></script>
+<script src="{{ url_for('static', filename='help.js') }}?v={{ VERSION }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}?v={{ VERSION }}"></script>
+</body>
+</html>

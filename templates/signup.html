@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}New Account{% endblock %}
+{% block form %}
+<p style="margin:0">Membership is by invitation. Enter the invite code you were given, then choose a user name and password.</p>
+{% if error %}<div class="dmsg" role="alert" style="margin:0">{{ error }}</div>{% endif %}
+<label class="f"><span>Invite code:</span><input name="code" value="{{ f.code or '' }}" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off" required style="font-family:var(--mono)"></label>
+<div class="grid">
+  <label class="f"><span>User name:</span><input name="username" value="{{ f.username or '' }}" autocomplete="username" autocapitalize="none" required pattern="[A-Za-z0-9_.\-]{3,32}"></label>
+  <label class="f"><span>Your name (optional):</span><input name="display_name" value="{{ f.display_name or '' }}" maxlength="60" autocomplete="name"></label>
+  <label class="f"><span>Callsign (optional):</span><input name="callsign" value="{{ f.callsign or '' }}" maxlength="12" autocapitalize="characters"></label>
+</div>
+<div class="grid">
+  <label class="f"><span>Password (8+ characters):</span><input name="password" type="password" minlength="8" autocomplete="new-password" required></label>
+  <label class="f"><span>Password again:</span><input name="password2" type="password" minlength="8" autocomplete="new-password" required></label>
+</div>
+<div class="dbtns" style="padding:4px 0 0;justify-content:space-between;align-items:center">
+  <a class="small" href="{{ url_for('login') }}">Already have an account? Sign in</a>
+  <button class="btn default" type="submit">Create Account</button>
+</div>
+{% endblock %}

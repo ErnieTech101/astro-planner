@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{% block form %}
+<div class="icon-row">
+  <svg width="40" height="40" viewBox="0 0 32 32" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="#ffff00" stroke="#000"/><circle cx="11" cy="11" r="2.5" fill="#c0c0c0" stroke="#000"/><path d="M15 15l12 12-2 2-2-2-2 2-2-2 2-2-6-6z" fill="#ffff00" stroke="#000"/></svg>
+  <p style="margin:0">Welcome to the <b>Astro Imaging Planner</b>. Type your user name and password to sign in.</p>
+</div>
+{% if error %}<div class="dmsg" role="alert" style="margin:0">{{ error }}</div>{% endif %}
+<label class="f"><span>User name:</span><input name="username" value="{{ username or '' }}" autocomplete="username" autocapitalize="none" required autofocus></label>
+<label class="f"><span>Password:</span><input name="password" type="password" autocomplete="current-password" required></label>
+<div class="dbtns" style="padding:4px 0 0;justify-content:space-between;align-items:center">
+  <a class="small" href="{{ url_for('signup') }}">Have an invite code? Sign up</a>
+  <button class="btn default" type="submit">OK</button>
+</div>
+{% endblock %}
