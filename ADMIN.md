@@ -355,8 +355,10 @@ The code lives at [github.com/ErnieTech101/astro-planner](https://github.com/Ern
 
 1. Claude builds and tests the release, then pushes it to GitHub on a branch named after the version (for example `release-1.5.4`) and gives you the link.
 2. On GitHub, open the link, click **Create pull request** (if one isn't open yet), look over the changes, then **Merge pull request**.
-3. Claude tags the merged release (`v1.5.4`), so GitHub's **Releases** and **Tags** pages list every version.
+3. Publish it as a release: on the repo page, **Releases → Draft a new release**, **Choose a tag**, type the version (`v1.5.4`) and pick **Create new tag on publish** with target **main**. Title it with the version, paste in the What's New text, attach the release zip, and click **Publish release**. GitHub's **Releases** page then lists every version with its zip.
 4. Install the zip on the server as usual (Updating the app, above). The zip and the GitHub copy are the same files.
+
+The README's pictures are files in `docs/screenshots/`, retaken for each release by `tools/screenshots.py`, which builds a throwaway demo account (no real member data) and photographs the app. So the pictures stay current with no uploading on your part. To retake them yourself: `pip install playwright`, `python -m playwright install chromium`, then `python tools/screenshots.py` in the project folder.
 
 If you edit `README.md` or `ADMIN.md` directly on GitHub, say so at the start of the next session so Claude starts from your version. Never commit `planner.db`, `/etc/astro-planner.env` or backup bundles; `.gitignore` already keeps them out.
 
