@@ -6,7 +6,7 @@ Astro Imaging Planner is a small, invite-only web app for people imaging deep-sk
 
 It's built for a group of friends, with an unapologetically 1990s desktop look and a red night-vision mode for use at the telescope.
 
-<img width="772" height="881" alt="image" src="https://github.com/user-attachments/assets/db8e4ead-f33b-4a5a-91f3-c5e48587477b" />
+<img src="docs/screenshots/planner.png" alt="The planner window: session, tonight's sky, filters and the sky box chart" width="772">
 
 ## Why did we build it?
 
@@ -45,13 +45,13 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Admin tools:** members listed by last activity, inactive members (90 days) flagged with a badge on the Admin button, and per-member properties to reset a password, turn an account off, make another admin, or delete.
 
 **Help**
-- A built-in **Help** window (toolbar or <kbd>F1</kbd>) with 14 topics: getting started, measuring your sky box, reading the chart, filters, the Moon, the log, tips for imaging from town, a glossary and FAQ. Small **?** buttons open the matching topic.
+- A built-in **Help** window (toolbar or <kbd>F1</kbd>) with 15 topics: getting started, measuring your sky box, reading the chart, filters, the Moon, the log, tips for imaging from town, a glossary and FAQ. Small **?** buttons open the matching topic.
 - **About** box with credits and the full version history.
 
 **At the telescope**
 - **Red Light mode** turns the whole interface black and red to protect your night vision.
 
-<img width="772" height="881" alt="image" src="https://github.com/user-attachments/assets/2ee8f698-74e7-418a-b5a2-952387f942b3" />
+<img src="docs/screenshots/red-light.png" alt="The planner in Red Light mode" width="772">
 
 
 ## How it works
@@ -127,6 +127,7 @@ deploy/
 tools/
   build_catalog.py  Rebuilds static/catalog.json from OpenNGC
   build_sky.py      Rebuilds static/sky.json from d3-celestial data
+  screenshots.py    Retakes the README screenshots from a throwaway demo account
 ADMIN.md            Administrator's Guide
 ```
 
