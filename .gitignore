@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Data and secrets: never commit these
+*.db
+*.db-wal
+*.db-shm
+*.db.before-restore-*
+*.env
+!deploy/astro-planner.env.example
+*.tar.gz
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

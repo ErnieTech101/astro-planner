@@ -1,0 +1,8 @@
+# /etc/caddy/Caddyfile  (or add this block to your existing one)
+# Point a DNS A record for this name at your Hetzner server first.
+# Caddy gets and renews the HTTPS certificate on its own.
+
+planner.example.com {
+	encode gzip
+	reverse_proxy 127.0.0.1:8077
+}

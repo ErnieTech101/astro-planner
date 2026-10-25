@@ -1,6 +1,6 @@
 # Astro Imaging Planner — Administrator's Guide
 
-Version 1.4 · October 2026 · Dave Doler (K3DFD)
+Version 1.5 · October 2026 · Dave Doler (K3DFD)
 
 The shareable, editable copy of this guide lives in Dave's Claude docs. This file is the copy that travels with the code.
 
@@ -134,7 +134,7 @@ Click **Properties…** beside a member to see their details and act on the acco
 | **Reset Password** | Shows a temporary password such as `XQ8J-W29U-K6WJ`. Give it to the member privately. Their old password stops working, and at next sign-in they're asked to choose a new one. |
 | **Turn Off / Turn On** | Stops a member signing in without deleting anything. Takes effect at once, even if they're signed in. Turned-off members don't count in Club Stats. |
 | **Make Admin / Remove Admin** | Gives or removes the **Admin** button. A second admin is a good idea in case you're away. |
-| **Delete…** | Deletes the member, their sites and their log. You type their user name to confirm. Back up first; this can only be undone by a restore. |
+| **Delete…** | Deletes the member, their sites, equipment and log. You type their user name to confirm. Back up first; this can only be undone by a restore. |
 
 You can't turn off, demote or delete your own account, so the site always keeps an administrator.
 
@@ -293,7 +293,7 @@ flask --app app run
 
 An update replaces the code in `/opt/astro-planner` and restarts the app; the database is untouched and upgrades itself if a release needs it. Take a backup first and keep the previous version, so you can roll back in a minute.
 
-Releases come as a zip, such as `astro-planner-1.4.0.zip`. Unzip it on your PC. Always upload from a freshly unzipped release, never from your Windows working folder: that folder's Windows `venv`, `planner.db` and `__pycache__` would overwrite or clutter the server's.
+Releases come as a zip, such as `astro-planner-1.5.3.zip`. Unzip it on your PC. Always upload from a freshly unzipped release, never from your Windows working folder: that folder's Windows `venv`, `planner.db` and `__pycache__` would overwrite or clutter the server's.
 
 1. **Back up, and keep the current code** (on the server):
    ```sh
@@ -309,6 +309,8 @@ Releases come as a zip, such as `astro-planner-1.4.0.zip`. Unzip it on your PC. 
 FileZilla uploads work because `/opt/astro-planner` is owned by the `astro` group, is group-writable, and passes the group on to new files (Installation record, step 3). If an upload is refused with "permission denied", rerun those three `chmod`/`find` lines from step 3.
 
 Without FileZilla, upload the unzipped folder to your home directory (say `~/astro-planner-new`) and copy it in: `sudo cp -r ~/astro-planner-new/* /opt/astro-planner/`, then continue from step 3.
+
+**Releases that change the database** (1.5.2 added an equipment table and a scope column on log entries; 1.5.3 added two equipment columns) upgrade it automatically the first time the app starts. Nothing to run by hand; the backup in step 1 is your safety net. Rolling back the code afterward is still fine: older versions simply ignore the new table and columns.
 
 **To roll back**, put the previous code back and restart:
 
@@ -337,6 +339,27 @@ python tools/build_catalog.py NGC.csv addendum.csv > static/catalog.json
 
 It prints how many Messier and Caldwell objects it found (110 and 108) and notes any object it had to leave out. Then bump the version and upload as a normal update. The catalog's CC BY-SA 4.0 license requires the OpenNGC credit, which is in the About box; keep it there.
 
+### Updating the chart's stars and constellations
+
+The chart's stars (to magnitude 5) and constellation figures live in `static/sky.json`, built from [d3-celestial](https://github.com/ofrohn/d3-celestial) by `tools/build_sky.py`. This data rarely changes, so a rebuild is seldom needed. To do one, download `stars.6.json`, `constellations.lines.json` and `constellations.json` from d3-celestial's `data` folder, then:
+
+```sh
+python tools/build_sky.py stars.6.json constellations.lines.json constellations.json > static/sky.json
+```
+
+d3-celestial's BSD license requires its credit, which is in the About box and README, and its license text in `tools/d3-celestial-LICENSE.txt`; keep both.
+
+### Keeping GitHub up to date
+
+The code lives at [github.com/ErnieTech101/astro-planner](https://github.com/ErnieTech101/astro-planner), the master copy of every release. The routine for each release:
+
+1. Claude builds and tests the release, then pushes it to GitHub on a branch named after the version (for example `release-1.5.4`) and gives you the link.
+2. On GitHub, open the link, click **Create pull request** (if one isn't open yet), look over the changes, then **Merge pull request**.
+3. Claude tags the merged release (`v1.5.4`), so GitHub's **Releases** and **Tags** pages list every version.
+4. Install the zip on the server as usual (Updating the app, above). The zip and the GitHub copy are the same files.
+
+If you edit `README.md` or `ADMIN.md` directly on GitHub, say so at the start of the next session so Claude starts from your version. Never commit `planner.db`, `/etc/astro-planner.env` or backup bundles; `.gitignore` already keeps them out.
+
 ### Day-to-day checks
 
 | How often | Check | Looking for |
@@ -361,7 +384,7 @@ Most problems come down to one of three things: the app isn't running, a setting
 | Member forgot their password | Forgotten password | **Admin** → **Properties…** → **Reset Password** |
 | A member can't sign in: "This account is turned off" | Account turned off | **Admin** → **Properties…** → **Turn On** |
 | "Invite code isn't valid" | Code already used, revoked or mistyped | Create a new invite and send the link rather than the code |
-| A member's times look wrong | Wrong time zone on their site | They fix it under **Sites** (admins can't see members' sites) |
+| A member's times look wrong | Wrong time zone on their site | They fix it under **Setup → Sites** (admins can't see members' sites) |
 | `pull-log.txt` says **FAILED** | PC offline, SSH key not accepted, or `dave` not in the `astro` group | In PowerShell, try `ssh dave@astro-planner.ernietech.net ls /var/backups/astro-planner`; its error message names the problem |
 | `pull-log.txt` says **WARNING ... days old** | Nightly backup job stopped | Run `sudo -u astro /usr/local/bin/astro-planner-backup` and read its error. Check that `/etc/cron.d/astro-planner` exists |
 | Browser warns about the certificate | Automatic renewal failed | `sudo certbot renew`, then `sudo systemctl reload nginx` |
@@ -399,4 +422,3 @@ The planner holds little that's sensitive: user names, optional names and callsi
 | Test nginx after editing | `sudo nginx -t && sudo systemctl reload nginx` |
 | Test certificate renewal | `sudo certbot renew --dry-run` |
 | Roll back an update | `sudo rm -rf /opt/astro-planner && sudo mv /opt/astro-planner.prev /opt/astro-planner` then restart |
-

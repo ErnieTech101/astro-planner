@@ -22,7 +22,8 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Surface brightness filter** for galaxies and nebulae, so large, diffuse objects that drown in city light can be filtered out even when their total magnitude looks bright.
 - **The Moon:** phase picture, percent lit, rise and set times, its track on the chart, and each target's distance from it, flagged when a bright Moon is too close. Optionally hides targets the Moon washes out.
 - **Darkness:** sunset and astronomical twilight times, with a note when your session starts before full dark.
-- **Sky box chart** showing your window and each target's track across it, with 30-minute markers.
+- **Sky box chart** showing your window and each target's track across it, with 30-minute markers, atlas-style type symbols, and a faint background of bright stars, constellation figures and the meridian (each can be turned off).
+- **Sidereal time and transit:** local sidereal time at the start and end of your session, and when each target crosses the meridian (its highest point) and how high it gets.
 - **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.
 - **Prev / Tonight / Next** buttons to scan ahead through the season.
 
@@ -33,12 +34,13 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 
 **Accounts**
 - **Invite-only.** The admin creates single-use invite links; there's no public sign-up.
-- **Multiple sites per member**, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button.
+- **Setup: sites and equipment.** Multiple sites per member, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button; and the member's scopes, with presets for the Dwarf Mini, Dwarf 3, Dwarf II and Seestar S30, S30 Pro, S50 and S50 Pro, and a field-of-view calculator for any other telescope and camera.
+- **Fits the frame:** each target's apparent size and whether it fits the chosen scope's field of view (allowing for field rotation on alt-az mounts), fills it, or needs a mosaic.
 - Settings follow you between devices.
 - Works on phones and desktops.
 
 **Club**
-- **Club Stats** for everyone: members, log entries, hours of light collected, objects imaged and the club favorite. Totals only.
+- **Club Stats** for everyone: members, log entries, hours of light collected, objects imaged, the club favorite and which scopes members use. Totals only.
 - **What's New** window, shown once after each update.
 - **Admin tools:** members listed by last activity, inactive members (90 days) flagged with a badge on the Admin button, and per-member properties to reset a password, turn an account off, make another admin, or delete.
 
@@ -113,6 +115,7 @@ manage.py           Admin CLI: invites, users, password resets, backup, verify
 static/
   astro.js          Sky math: positions, Sun, Moon, twilight
   catalog.json      726 objects built from OpenNGC
+  sky.json          Stars to magnitude 5 and constellation figures for the chart
   app.js            Browser UI
   help.js           Help topics
   retro.css         The retro theme and red-light mode
@@ -123,6 +126,7 @@ deploy/
   windows/                PowerShell scripts that pull backups to a PC
 tools/
   build_catalog.py  Rebuilds static/catalog.json from OpenNGC
+  build_sky.py      Rebuilds static/sky.json from d3-celestial data
 ADMIN.md            Administrator's Guide
 ```
 
@@ -149,6 +153,10 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.5.3 | 2026-10-25 | Field-of-view calculator for any telescope and camera; pixel size and image scale; alt-az or equatorial mount, with an EQ-aware frame check. Small automatic database upgrade |
+| 1.5.2 | 2026-10-25 | Setup window with Sites and Equipment tabs; scope presets; Scope list under Session; Size / frame column; scope recorded in the log, CSV and My Log totals; club scope counts in Club Stats. Database upgrade (scopes table, log scope column) runs automatically |
+| 1.5.1 | 2026-10-25 | Sky box chart: bright stars, constellation figures and names, a meridian line, and object-type symbols with a key; Show checkboxes, remembered per member |
+| 1.5.0 | 2026-10-25 | Local sidereal time with session times, window table and chart readout; transit time and altitude for every target |
 | 1.4.0 | 2026-10-19 | Help window (F1, search, ? buttons) and About box with version history |
 | 1.3.1 | 2026-10-19 | Club Stats counters restyled to match the window theme |
 | 1.3.0 | 2026-10-19 | Last-active tracking with inactive-member flag and Admin badge; Member Properties (reset password with forced change, turn off, make admin, delete); Club Stats; What's New window; `manage.py disable/enable`; automatic database upgrade |
@@ -164,6 +172,10 @@ Dave Doler, K3DFD, Philadelphia.
 ## Credits
 
 Catalog data: [OpenNGC](https://github.com/mattiaverga/OpenNGC) by Mattia Verga, licensed [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). `static/catalog.json` is derived from it and shares that license.
+
+Scope presets use the makers' published specs for the main camera (single frame), cross-checked by computing the field of view from sensor size and focal length: DWARFLAB for the Dwarf models, ZWO/Seestar for the Seestar models.
+
+Chart stars and constellation figures: [d3-celestial](https://github.com/ofrohn/d3-celestial) by Olaf Frohn, [BSD 3-Clause license](tools/d3-celestial-LICENSE.txt); stars from the XHIP Hipparcos compilation. `static/sky.json` is derived from it.
 
 ## License
 

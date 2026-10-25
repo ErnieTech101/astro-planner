@@ -1,0 +1,21 @@
+# /etc/systemd/system/astro-planner.service
+[Unit]
+Description=Astro Imaging Planner
+After=network.target
+
+[Service]
+User=astro
+Group=astro
+WorkingDirectory=/opt/astro-planner
+EnvironmentFile=/etc/astro-planner.env
+ExecStart=/opt/astro-planner/venv/bin/gunicorn -w 2 -b 127.0.0.1:8077 --access-logfile - app:app
+Restart=on-failure
+# Hardening: the app can only write to its data folder.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/astro-planner
+
+[Install]
+WantedBy=multi-user.target
