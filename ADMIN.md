@@ -310,7 +310,7 @@ FileZilla uploads work because `/opt/astro-planner` is owned by the `astro` grou
 
 Without FileZilla, upload the unzipped folder to your home directory (say `~/astro-planner-new`) and copy it in: `sudo cp -r ~/astro-planner-new/* /opt/astro-planner/`, then continue from step 3.
 
-**Releases that change the database** (1.5.2 added an equipment table and a scope column on log entries; 1.5.3 added two equipment columns) upgrade it automatically the first time the app starts. Nothing to run by hand; the backup in step 1 is your safety net. Rolling back the code afterward is still fine: older versions simply ignore the new table and columns.
+**Releases that change the database** (1.5.2 added an equipment table and a scope column on log entries; 1.5.3 and 1.5.5 added equipment columns) upgrade it automatically the first time the app starts. Nothing to run by hand; the backup in step 1 is your safety net. Rolling back the code afterward is still fine: older versions simply ignore the new table and columns.
 
 **To roll back**, put the previous code back and restart:
 

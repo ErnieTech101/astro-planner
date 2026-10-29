@@ -22,7 +22,7 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Surface brightness filter** for galaxies and nebulae, so large, diffuse objects that drown in city light can be filtered out even when their total magnitude looks bright.
 - **The Moon:** phase picture, percent lit, rise and set times, its track on the chart, and each target's distance from it, flagged when a bright Moon is too close. Optionally hides targets the Moon washes out.
 - **Darkness:** sunset and astronomical twilight times, with a note when your session starts before full dark.
-- **Sky box chart** showing your window and each target's track across it, with 30-minute markers, atlas-style type symbols, and a faint background of bright stars, constellation figures and the meridian, and a skyline of houses and trees along the horizon (each can be turned off).
+- **Sky box chart** showing your window and each target's track across it, with 30-minute markers, atlas-style type symbols, and a faint background of bright stars, constellation figures and the meridian, a skyline of houses and trees along the horizon, the planets, and a frame outline showing what one shot covers (each can be turned off).
 - **Sidereal time and transit:** local sidereal time at the start and end of your session, and when each target crosses the meridian (its highest point) and how high it gets.
 - **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.
 - **Prev / Tonight / Next** buttons to scan ahead through the season.
@@ -34,7 +34,7 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 
 **Accounts**
 - **Invite-only.** The admin creates single-use invite links; there's no public sign-up.
-- **Setup: sites and equipment.** Multiple sites per member, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button; and the member's scopes, with presets for the Dwarf Mini, Dwarf 3, Dwarf II and Seestar S30, S30 Pro, S50 and S50 Pro, and a field-of-view calculator for any other telescope and camera.
+- **Setup: sites and equipment.** Multiple sites per member, each with its own location, time zone, sky box and Bortle class, plus a **Use My Location** button; and the member's scopes, with presets for the Dwarf Mini, Dwarf 3, Dwarf II and Seestar S30, S30 Pro, S50 and S50 Pro, a field-of-view calculator for any other telescope and camera, and phones (Pixel 8 Pro to 11 Pro, iPhone 13 Pro to 18 Pro, Galaxy S23 to S26) with a Phone targets list of what's big and bright enough for a phone's astro mode.
 - **Fits the frame:** each target's apparent size and whether it fits the chosen scope's field of view (allowing for field rotation on alt-az mounts), fills it, or needs a mosaic.
 - Settings follow you between devices.
 - Works on phones and desktops.
@@ -45,7 +45,7 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Admin tools:** members listed by last activity, inactive members (90 days) flagged with a badge on the Admin button, and per-member properties to reset a password, turn an account off, make another admin, or delete.
 
 **Help**
-- A built-in **Help** window (toolbar or <kbd>F1</kbd>) with 15 topics: getting started, measuring your sky box, reading the chart, filters, the Moon, the log, tips for imaging from town, a glossary and FAQ. Small **?** buttons open the matching topic.
+- A built-in **Help** window (toolbar or <kbd>F1</kbd>) with 16 topics: getting started, measuring your sky box, reading the chart, filters, the Moon, the log, tips for imaging from town, a glossary and FAQ. Small **?** buttons open the matching topic.
 - **About** box with credits and the full version history.
 
 **At the telescope**
@@ -154,6 +154,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.5.5 | 2026-10-29 | Phones as equipment (main and telephoto lenses, astro-mode notes) with a Phone targets table; planets on the chart and in Tonight's sky (checked against PyEphem, within 5′); frame outline on the chart that moves to the target you point at. Small automatic database upgrade |
 | 1.5.4 | 2026-10-29 | Sky box chart: a decorative skyline of houses, trees and poles along the horizon, different for each site, with a Horizon checkbox under Show |
 | 1.5.3 | 2026-10-25 | Field-of-view calculator for any telescope and camera; pixel size and image scale; alt-az or equatorial mount, with an EQ-aware frame check. Small automatic database upgrade |
 | 1.5.2 | 2026-10-25 | Setup window with Sites and Equipment tabs; scope presets; Scope list under Session; Size / frame column; scope recorded in the log, CSV and My Log totals; club scope counts in Club Stats. Database upgrade (scopes table, log scope column) runs automatically |

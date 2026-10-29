@@ -3,6 +3,12 @@
 Write them for members, not administrators: what they'll notice and how to use it.
 """
 CHANGELOG = [
+    ("1.5.5", "2026-10-29", [
+        "Phones: add your phone under Setup → Equipment (Type: Phone). Presets cover Pixel 8 Pro to 11 Pro, iPhone 13 Pro to 18 Pro, and Galaxy S23 to S26, with both the main and telephoto lenses. A Phone targets table then lists the Moon, planets, bright clusters and constellations passing through your box, with which lens to use. Thanks to our beta testers for the idea.",
+        "Planets: Mercury, Venus, Mars, Jupiter and Saturn now appear on the chart, and Tonight's sky lists the ones that are up and whether they cross your box.",
+        "Frame: a dashed rectangle on the chart shows how much sky one shot with your scope or phone covers. Point at a target in the tables and it moves onto that target.",
+        "New Planets and Frame checkboxes under Show.",
+    ]),
     ("1.5.4", "2026-10-29", [
         "The sky box chart now has a little neighborhood along the bottom: houses, trees, utility poles and the odd lit window. Each site gets its own street. Don't like it? Untick Horizon under Show.",
     ]),
