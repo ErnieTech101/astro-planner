@@ -25,7 +25,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import db
 from changelog import CHANGELOG, news_since
 
-VERSION = "1.5.4"
+VERSION = "1.5.5"
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("AIP_DB", os.path.join(HERE, "planner.db"))
 
@@ -51,7 +51,7 @@ TIMEZONES = available_timezones()
 INACTIVE_DAYS = int(os.environ.get("AIP_INACTIVE_DAYS", "90"))
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
 SETTINGS_KEYS = {"mag", "dur", "t0", "t1", "site_id", "unimagedFirst", "red", "setupDone", "cats", "sb", "moonRule",
-                 "showConst", "showStars", "showMer", "showHoriz", "scope_id"}
+                 "showConst", "showStars", "showMer", "showHoriz", "showFrame", "showPlanets", "scope_id"}
 # Compared against when the username doesn't exist, so a wrong username takes as long as a wrong password.
 _DUMMY_HASH = generate_password_hash(secrets.token_hex(16))
 
@@ -459,8 +459,12 @@ def _clean_scope(j):
     s = dict(
         name=text(j, "name", "Scope name", 60, required=True),
         model=text(j, "model", "Model", 30),
-        fov_w=num(j, "fov_w", 0.05, 60, "Field of view width"),
-        fov_h=num(j, "fov_h", 0.05, 60, "Field of view height"),
+        kind=text(j, "kind", "Type", 10) or "scope",
+        fov_w=num(j, "fov_w", 0.05, 130, "Field of view width"),
+        fov_h=num(j, "fov_h", 0.05, 130, "Field of view height"),
+        tele_w=num(j, "tele_w", 0.05, 130, "Telephoto field of view width", required=False),
+        tele_h=num(j, "tele_h", 0.05, 130, "Telephoto field of view height", required=False),
+        tele_x=num(j, "tele_x", 1, 30, "Telephoto zoom", required=False),
         aperture=num(j, "aperture", 1, 2000, "Aperture", required=False),
         focal=num(j, "focal", 1, 20000, "Focal length", required=False),
         pixel=num(j, "pixel", 0.5, 30, "Pixel size", required=False),
@@ -468,6 +472,10 @@ def _clean_scope(j):
         filters=text(j, "filters", "Filters", 120),
         notes=text(j, "notes", "Notes", 500),
     )
+    if s["kind"] not in ("scope", "phone"):
+        raise BadInput("Type must be a telescope or a phone.")
+    if s["tele_w"] and s["tele_h"] and s["tele_h"] > s["tele_w"]:
+        s["tele_w"], s["tele_h"] = s["tele_h"], s["tele_w"]
     if s["mount"] not in ("altaz", "eq"):
         raise BadInput("Mount must be alt-az or equatorial.")
     if s["fov_h"] > s["fov_w"]:          # keep width as the long side
@@ -475,7 +483,8 @@ def _clean_scope(j):
     return s
 
 
-SCOPE_COLS = ("name", "model", "fov_w", "fov_h", "aperture", "focal", "pixel", "mount", "filters", "notes")
+SCOPE_COLS = ("name", "model", "kind", "fov_w", "fov_h", "tele_w", "tele_h", "tele_x", "aperture", "focal", "pixel",
+              "mount", "filters", "notes")
 
 
 def _scope(con, uid, sid):

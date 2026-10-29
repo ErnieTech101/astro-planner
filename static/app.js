@@ -16,7 +16,7 @@ async function api(method,url,body){
   return j;
 }
 
-const DEF={mag:6,dur:60,t0:"19:00",t1:"21:00",site_id:null,unimagedFirst:false,red:false,setupDone:true,cats:"MCN",sb:0,moonRule:"show",showConst:true,showStars:true,showMer:true,showHoriz:true,scope_id:null};
+const DEF={mag:6,dur:60,t0:"19:00",t1:"21:00",site_id:null,unimagedFirst:false,red:false,setupDone:true,cats:"MCN",sb:0,moonRule:"show",showConst:true,showStars:true,showMer:true,showHoriz:true,showFrame:true,showPlanets:true,scope_id:null};
 let ST={me:{},settings:{...DEF},sites:[],scopes:[],log:[]};
 let last=null,totals=new Map();
 const COMMON_TZ=[["America/New_York","Eastern"],["America/Chicago","Central"],["America/Denver","Mountain"],
@@ -41,6 +41,23 @@ const CAMERAS=[
   ["ZWO ASI183 (MC/MM)",13.19,8.81,2.4],["ZWO ASI294MC",19.19,13.07,4.63],["ZWO ASI2600 (MC/MM)",23.49,15.70,3.76],
   ["Full-frame DSLR / mirrorless",36,24,""],["APS-C, Canon",22.3,14.9,""],["APS-C, Nikon / Sony / Fuji",23.5,15.6,""],["Micro Four Thirds",17.3,13.0,""]];
 const fovDeg=(mm,f)=>2*Math.atan(mm/(2*f))*180/Math.PI;
+// Phones: 35 mm-equivalent focal lengths of the main (1x) and telephoto lenses, from the makers' spec pages.
+// Field of view is worked out for the 4:3 photo frame (34.6 x 26.0 mm in 35 mm terms).
+const PHONE_PRESETS=[
+  ["Pixel 8 Pro",25,113,5],["Pixel 9 Pro / Pro XL",25,113,5],["Pixel 10 Pro / Pro XL",25,113,5],["Pixel 11 Pro / Pro XL",25,106,5],
+  ["iPhone 13 Pro / Pro Max",26,77,3],["iPhone 14 Pro / Pro Max",24,77,3],["iPhone 15 Pro",24,77,3],["iPhone 15 Pro Max",24,120,5],
+  ["iPhone 16 Pro / Pro Max",24,120,5],["iPhone 17 Pro / Pro Max",24,100,4],["iPhone 18 Pro / Pro Max",24,100,4],
+  ["Galaxy S23 Ultra",23,70,3],["Galaxy S24 Ultra",23,111,5],["Galaxy S25 Ultra",24,111,5],["Galaxy S26 Ultra",23,111,5],
+  ["Galaxy S24 / S24+",24,67,3],["Galaxy S25 / S25+",24,67,3],["Other phone",24,"",""]].map(([model,f1,f2,x])=>({model,kind:"phone",
+    fov_w:+fovDeg(34.62,f1).toFixed(1),fov_h:+fovDeg(25.96,f1).toFixed(1),
+    tele_w:f2?+fovDeg(34.62,f2).toFixed(1):"",tele_h:f2?+fovDeg(25.96,f2).toFixed(1):"",tele_x:x}));
+// How each maker's astro mode works, shown with a phone.
+function astroMode(model){const m=String(model||"");
+  if(/^Pixel/.test(m))return "Astro mode: Night Sight switches to Astrophotography by itself when the phone is still on a tripod, with exposures up to 4 minutes.";
+  if(/^iPhone/.test(m))return "Astro mode: Night mode. On a tripod, the timer can run up to 30 seconds; slide it to Max.";
+  if(/^Galaxy/.test(m))return "Astro mode: Samsung's Expert RAW app has an Astrophoto mode with exposures of 4 to 10 minutes.";
+  return "Use your phone's night or astro mode, on a tripod.";}
+const isPhone=x=>x&&x.kind==="phone";
 const fmtFov=x=>`${(+x.fov_w).toFixed(2)}° × ${(+x.fov_h).toFixed(2)}°`;
 const tzLabel=z=>(COMMON_TZ.find(t=>t[0]===z)||[0,z.replace(/_/g," ")])[1];
 
@@ -74,11 +91,11 @@ function applySettings(){const s=ST.settings;
   setSel($("mag"),Number(s.mag).toFixed(1),"6.0");$("unimaged").checked=!!s.unimagedFirst;
   setSel($("sb"),s.sb,0);setSel($("moonrule"),s.moonRule,"show");
   for(const c of "MCN")$("cat_"+c).checked=String(s.cats??"MCN").includes(c);
-  $("show_const").checked=s.showConst!==false;$("show_stars").checked=s.showStars!==false;$("show_mer").checked=s.showMer!==false;$("show_horiz").checked=s.showHoriz!==false;}
+  $("show_const").checked=s.showConst!==false;$("show_stars").checked=s.showStars!==false;$("show_mer").checked=s.showMer!==false;$("show_horiz").checked=s.showHoriz!==false;$("show_frame").checked=s.showFrame!==false;$("show_planets").checked=s.showPlanets!==false;}
 function readSettings(){Object.assign(ST.settings,{t0:$("t0").value,t1:$("t1").value,dur:+$("dur").value,mag:+$("mag").value,
   site_id:+$("site").value||ST.settings.site_id,unimagedFirst:$("unimaged").checked,
   sb:+$("sb").value,moonRule:$("moonrule").value,cats:[..."MCN"].filter(c=>$("cat_"+c).checked).join(""),
-  showConst:$("show_const").checked,showStars:$("show_stars").checked,showMer:$("show_mer").checked,showHoriz:$("show_horiz").checked});}
+  showConst:$("show_const").checked,showStars:$("show_stars").checked,showMer:$("show_mer").checked,showHoriz:$("show_horiz").checked,showFrame:$("show_frame").checked,showPlanets:$("show_planets").checked});}
 let saveT;
 function saveSettings(){clearTimeout(saveT);saveT=setTimeout(saveSettingsNow,700);}
 function saveSettingsNow(){clearTimeout(saveT);return api("PUT","/api/settings",ST.settings).catch(e=>flash("Couldn't save settings: "+e.message,true));}
@@ -90,7 +107,8 @@ function renderSites(){const x=site();
   const sc=scope();
   $("scope").innerHTML=`<option value="">(none)</option>`+ST.scopes.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
   $("scope").value=sc?String(sc.id):"";
-  $("scopeinfo").textContent=sc?`${sc.model&&sc.model!=="Other"&&sc.model!==sc.name?sc.model+" · ":""}${fmtFov(sc)} field${sc.aperture?` · ${sc.aperture} mm`:""}${sc.aperture&&sc.focal?` f/${(sc.focal/sc.aperture).toFixed(1)}`:""}${sc.pixel&&sc.focal?` · ${(206.265*sc.pixel/sc.focal).toFixed(2)}″/pixel`:""} · ${sc.mount==="eq"?"equatorial":"alt-az"}`
+  $("scopeinfo").textContent=sc&&isPhone(sc)?`${sc.model&&sc.model!==sc.name&&sc.model!=="Other phone"?sc.model+" · ":""}phone · main lens ${(+sc.fov_w).toFixed(0)}° × ${(+sc.fov_h).toFixed(0)}°${sc.tele_w?` · ${sc.tele_x||""}${sc.tele_x?"× ":""}telephoto ${(+sc.tele_w).toFixed(1)}° × ${(+sc.tele_h).toFixed(1)}°`:""}`
+    :sc?`${sc.model&&sc.model!=="Other"&&sc.model!==sc.name?sc.model+" · ":""}${fmtFov(sc)} field${sc.aperture?` · ${sc.aperture} mm`:""}${sc.aperture&&sc.focal?` f/${(sc.focal/sc.aperture).toFixed(1)}`:""}${sc.pixel&&sc.focal?` · ${(206.265*sc.pixel/sc.focal).toFixed(2)}″/pixel`:""} · ${sc.mount==="eq"?"equatorial":"alt-az"}`
     :ST.scopes.length?"No scope picked: choose one to check what fits the frame.":"Add your scope under Setup → Equipment to check what fits the frame.";
   if(x)$("siteinfo").textContent=`${ll(x.lat,"N","S")} ${ll(x.lon,"E","W")} · ${tzLabel(x.tz)} · Az ${x.az0}°–${x.az1}° · Alt ${x.al0}°–${x.al1}°${x.bortle?` · Bortle ${x.bortle}`:""}`;
 }
@@ -131,7 +149,13 @@ function moonSvg(k,waxing,size){const c=size/2,r=c-2,rx=(r*Math.abs(2*k-1)).toFi
   return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${c}" cy="${c}" r="${r}" fill="${dark}" stroke="${edge}"/>`+
     (k>0.01?`<path d="M${c} ${c-r}A${r} ${r} 0 0 ${s1} ${c} ${c+r}A${rx} ${r} 0 0 ${s2} ${c} ${c-r}Z" fill="${lit}"/>`:"")+
     `<circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${edge}"/></svg>`;}
-function skyPanel(s,moon,night){const m0=moon[0],up=moon.filter(m=>m.alt>MOON_UP),pct=Math.round(m0.illum*100);
+const fmtMag=m=>(m<0?"\u2212":"")+Math.abs(m).toFixed(1);
+const inBox=(q,s)=>q.alt>=s.al0&&q.alt<=s.al1&&q.x>=0&&q.x<=s.g.w;
+function planetLine(s,planets){const up=planets.filter(p=>p.pts.some(q=>q.alt>3));
+  if(!up.length)return "No bright planets are up during your session.";
+  return "Planets: "+up.map(p=>{const u=p.pts.filter(q=>q.alt>3),mid=u[Math.floor(u.length/2)],box=p.pts.some(q=>inBox(q,s));
+    return `<b>${p.name}</b> (mag ${fmtMag(p.mag)}), ${Math.round(Math.min(...u.map(q=>q.alt)))}°–${Math.round(Math.max(...u.map(q=>q.alt)))}° high in the ${dir(mid.az)}${box?", <b>in your box</b>":""}`;}).join("; ")+".";}
+function skyPanel(s,moon,night,planets){const m0=moon[0],up=moon.filter(m=>m.alt>MOON_UP),pct=Math.round(m0.illum*100);
   $("moonicon").innerHTML=moonSvg(m0.illum,m0.waxing,44);
   const rs=[night.moonrise&&`rises ${fmt(night.moonrise)}`,night.moonset&&`sets ${fmt(night.moonset)}`].filter(Boolean).join(", ");
   let during;
@@ -141,7 +165,7 @@ function skyPanel(s,moon,night){const m0=moon[0],up=moon.filter(m=>m.alt>MOON_UP
   const sun=night.sunset?`Sunset ${fmt(night.sunset)}`:"No sunset tonight";
   const dark=night.dusk&&night.dawn?`fully dark ${fmt(night.dusk)} to ${fmt(night.dawn)}`:"no full darkness tonight (twilight all night)";
   const early=night.dusk&&s.t0<night.dusk?` <b>Your session starts before full darkness</b>; the sky keeps brightening the background until ${fmt(night.dusk)}.`:"";
-  $("skyinfo").innerHTML=`<div><b>${phaseName(m0.elong,m0.illum)}</b>, ${pct}% lit${rs?`; ${rs}`:""}. ${during}</div><div>${sun}; ${dark}.${early}</div>`;}
+  $("skyinfo").innerHTML=`<div><b>${phaseName(m0.elong,m0.illum)}</b>, ${pct}% lit${rs?`; ${rs}`:""}. ${during}</div><div>${sun}; ${dark}.${early}</div><div>${planetLine(s,planets)}</div>`;}
 
 function transitCell(r,s){const tr=transitOf(r.o,(s.t0+s.t1)/2,s.lat,s.lon),inS=tr.t>=s.t0&&tr.t<=s.t1;
   return `<td class="m"${inS?' title="Crosses the meridian during your session"':""}>${inS?"<b>":""}${fmt(tr.t)}${inS?"</b>":""}<div class="nm">${Math.round(tr.alt)}° high</div></td>`;}
@@ -150,7 +174,7 @@ function transitCell(r,s){const tr=transitOf(r.o,(s.t0+s.t1)/2,s.lat,s.lon),inS=
 // so "Fits" means it fits whichever way it turns; "Snug" needs the long side of the frame.
 const fmtArc=v=>v>=1?`${Math.round(v)}′`:`${Math.round(v*60)}″`;
 function fmtSize(o){if(o[6]==null)return "";return o[7]!=null&&Math.round(o[7])!==Math.round(o[6])?`${fmtArc(o[6])} × ${fmtArc(o[7])}`:fmtArc(o[6]);}
-function frameFit(o,sc){if(!sc||o[6]==null)return null;
+function frameFit(o,sc){if(!sc||isPhone(sc)||o[6]==null)return null;
   const L=sc.fov_w*60,S=sc.fov_h*60,maj=o[6],mn=o[7]??o[6],pct=Math.max(1,Math.round(maj/L*100));
   if(maj<0.04*L)return {lvl:"ok",txt:"Small",pct,note:"tiny in the frame; crop to enlarge"};
   if(sc.mount==="eq"){   // no field rotation: what fits lengthwise stays fitted
@@ -177,7 +201,9 @@ function run(){if(!site())return;readSettings();renderSites();computeTotals();
   const s=sessionParams(),st=ST.settings,cats=String(st.cats??"MCN");
   const [y,mo,d]=$("date").value.split("-").map(Number),night=nightInfo(zoned(y,mo,d,12,0,s.tz),s.lat,s.lon);
   const moon=[];for(let t=s.t0;t<=s.t1;t+=3e5){const m=moonAt(t,s.lat,s.lon);moon.push({...m,t,x:relAz(m.az,s.g)});}
-  skyPanel(s,moon,night);
+  const planets=PLANETS.filter(p=>p[3]).map(p=>({name:p[0],pts:[],mag:0}));
+  for(let t=s.t0;t<=s.t1+1;t+=6e5)planetsAt(t).forEach((p,i)=>{const [alt,az]=altaz(p.ra,p.dec,t,s.lat,s.lon);planets[i].pts.push({t,alt,az,x:relAz(az,s.g)});planets[i].mag=p.mag;});
+  skyPanel(s,moon,night,planets);
   // cheap checks first: catalog, brightness, surface brightness, can it ever get high enough?
   const cands=CAT.filter(o=>[...o[9]].some(c=>cats.includes(c))&&o[5]<=s.mag+1.5&&90-Math.abs(s.lat-o[4])>=s.al0
     &&!(st.sb&&o[8]!=null&&SB_TYPES.test(o[2])&&o[8]>st.sb));
@@ -194,7 +220,7 @@ function run(){if(!site())return;readSettings();renderSites();computeTotals();
   $("near").innerHTML=near.length?near.map(r=>row(r,s,true)).join(""):`<tr><td class="empty" colspan="10">None.</td></tr>`;
   $("win").innerHTML=[["Start",s.t0],["End",s.t1]].map(([l,t])=>{const b=boxSky(t,s);
     return `<tr><td class="n">${l} <span class="typ">${fmt(t)}</span></td><td class="m">${fmtLST(t,s.lon)}</td><td class="m">${fmtRA(b.c[0])}<div class="nm">${fmtDec(b.c[1])}</div></td><td class="m">${fmtRA(b.ra0)} – ${fmtRA(b.ra1)}</td><td class="m">${fmtDec(b.d0)} – ${fmtDec(b.d1)}</td></tr>`;}).join("");
-  last={s,good,near,moon,hidden};statusTargets();
+  last={s,good,near,moon,hidden,planets};statusTargets();phonePanel(s,cats);
   $("s2").textContent=`${fmt(s.t0)}–${fmt(s.t1)} ${z} · LST ${fmtLST(s.t0,s.lon)}–${fmtLST(s.t1,s.lon)}`;
   $("lstinfo").textContent=`Sidereal time ${fmtLST(s.t0,s.lon)} to ${fmtLST(s.t1,s.lon)}`;
   $("s3").textContent=`${cands.length} of ${CAT.length} objects checked${hidden?` · ${hidden} hidden by the Moon`:""} · ${site().name}`;
@@ -245,6 +271,41 @@ function skyLayer(s,X,Y,xA,xB,alB,c,pts,placed){const st=ST.settings,t=s.t0;let 
     out+=`<text class="sky" x="${lx.toFixed(1)}" y="${(Y(alB)+12).toFixed(1)}" fill="${c("--meridian")}" font-size="10">${lab}</text>`;
     placed.push({x:lx,y:Y(alB)+12,w});}
   return out;}
+/* ---------- phones: what makes a good phone shot tonight */
+function phonePanel(s,cats){const sc=scope(),box=$("phonebox");if(!box)return;
+  if(!isPhone(sc)){box.hidden=true;return;}box.hidden=false;
+  const teleOK=arcmin=>sc.tele_w&&arcmin<=0.8*sc.tele_h*60,lensName=t=>t?`${sc.tele_x?sc.tele_x+"× ":""}telephoto`:"Main (1×)";
+  const span=list=>{const b=list.filter(q=>inBox(q,s));if(!b.length)return null;const m=b[Math.floor(b.length/2)];return {t0:b[0].t,t1:b[b.length-1].t,v:m.x,alt:m.alt};};
+  const rows=[];
+  const mb=span(last.moon);if(mb)rows.push({name:"The Moon",what:`${Math.round(last.moon[0].illum*100)}% lit`,mag:"",b:mb,tele:teleOK(31)});
+  for(const p of last.planets){const b=span(p.pts);if(b)rows.push({name:p.name,what:"Planet",mag:fmtMag(p.mag),b,tele:true});}
+  CAT.filter(o=>[...o[9]].some(c=>cats.includes(c))&&(o[5]<=4||(o[5]<=5.5&&(o[6]??0)>=15))).sort((a,b)=>a[5]-b[5]).forEach(o=>{
+    const r=evaluate(o,{...s,dur:15});if(r.best<15)return;const m=r.path[Math.round((r.bs+r.be)/2)];
+    rows.push({name:o[0]+(o[1]?` · ${o[1]}`:""),what:o[2],mag:o[5].toFixed(1),b:{t0:s.t0+r.bs*6e4,t1:s.t0+r.be*6e4,v:m[1],alt:m[0]},tele:teleOK(o[6]??0),o:o[0]});});
+  if(SKY){const tm=(s.t0+s.t1)/2;for(const [,name,,ra,dec] of SKY.names){const [alt,az]=skyAltAz(ra,dec,tm,s),q={alt,x:relAz(az,s.g)};
+    if(inBox(q,s))rows.push({name,what:"Constellation",mag:"",b:{t0:null,v:q.x,alt},tele:false});}}
+  $("phoneinfo").textContent=`With your ${sc.name}: the main lens covers ${Math.round(sc.fov_w)}° × ${Math.round(sc.fov_h)}°${sc.tele_w?`, the ${lensName(true)} ${(+sc.tele_w).toFixed(1)}° × ${(+sc.tele_h).toFixed(1)}°`:""}. ${astroMode(sc.model)} Point at a row to see the frame on the chart.`;
+  $("phonelist").innerHTML=rows.length?rows.map(r=>`<tr data-frame="${r.b.v.toFixed(2)},${r.b.alt.toFixed(2)},${r.tele?"tele":"main"}"${r.o?` data-obj="${esc(r.o)}"`:""}>
+    <td class="n">${esc(r.name)} <span class="typ">· ${esc(r.what)}</span></td><td class="m">${r.mag}</td>
+    <td class="m">${r.b.t0==null?`around ${fmt((s.t0+s.t1)/2)}`:`${fmt(r.b.t0)}–${fmt(r.b.t1)}`}</td><td>${lensName(r.tele)}</td></tr>`).join("")
+    :`<tr><td class="empty" colspan="4">Nothing bright passes through your box during this session.</td></tr>`;}
+
+/* ---------- the frame outline: what one shot covers */
+let CH=null;
+function placeFrame(spec){const el=document.getElementById("fovg");if(!el||!CH||!last)return;const sc=scope();
+  if(!sc||ST.settings.showFrame===false){el.innerHTML="";return;}
+  const {s,X,Y,c,ml,mt,W,mr,g0}=CH;let v=s.g.w/2,alt=(s.al0+s.al1)/2,tele=false;
+  if(spec&&spec.id){const r=[...last.good,...last.near].find(q=>q.o[0]===spec.id);
+    if(r){const p=r.path[Math.round((r.bs+r.be)/2)];alt=p[0];v=p[1];tele=isPhone(sc)&&!!sc.tele_w&&r.o[6]!=null&&r.o[6]<=0.8*sc.tele_h*60;}}
+  else if(spec&&spec.v!=null){v=spec.v;alt=spec.alt;tele=spec.lens==="tele"&&!!sc.tele_w;}
+  const fw=+(tele?sc.tele_w:sc.fov_w),fh=+(tele?sc.tele_h:sc.fov_h),wAz=Math.min(360,fw/Math.max(0.15,Math.cos(alt*R)));
+  const x0=X(v-wAz/2),x1=X(v+wAz/2),y0=Y(alt+fh/2),y1=Y(alt-fh/2),d=n=>n<10?n.toFixed(2):n.toFixed(0);
+  const lab=`${sc.name}${isPhone(sc)?(tele?` · ${sc.tele_x?sc.tele_x+"× ":""}telephoto`:" · main lens"):""} · ${d(fw)}° × ${d(fh)}°`,lw=lab.length*6.1;
+  let lx=x1+4;if(lx+lw>W-mr)lx=x0-lw-4;lx=Math.max(ml+4,Math.min(lx,W-mr-lw-4));   // right of the frame, else left, kept on the chart
+  const ly=Math.min(Math.max(y0+11,mt+12),g0-6);
+  el.innerHTML=`<rect x="${x0.toFixed(1)}" y="${y0.toFixed(1)}" width="${(x1-x0).toFixed(1)}" height="${(y1-y0).toFixed(1)}" fill="none" stroke="${c("--frame")}" stroke-width="1.5" stroke-dasharray="5 3"/>`+
+    `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="${c("--frame")}" stroke="${c("--field")}" stroke-width="3" paint-order="stroke" font-size="10.5">${esc(lab)}</text>`;}
+
 // A decorative suburban skyline along the bottom of the chart: houses, trees, poles and wires.
 // Random but repeatable: each site gets its own skyline, the same every time. It stays below the sky box,
 // hides the faint stars behind it, and is drawn under the target tracks so nothing is lost.
@@ -285,6 +346,7 @@ function legend(groups,c){const el=$("legend");if(!el)return;
 function draw(){if(!last)return;const {s,good,near}=last,cs=getComputedStyle(document.body),c=v=>cs.getPropertyValue(v).trim();
   const W=760,H=400,ml=44,mr=16,mt=14,mb=34,padX=Math.min(40,(360-s.g.w)/2),xA=-padX,xB=s.g.w+padX,alB=Math.min(90,s.al1+15);
   const X=v=>ml+(v-xA)/(xB-xA)*(W-ml-mr),Y=a=>mt+(alB-a)/alB*(H-mt-mb);
+  CH={s,X,Y,c,ml,mt,W,mr,g0:Y(0)};
   const step=xB-xA>200?30:10;
   let g=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sky box chart" font-family="Tahoma, Verdana, sans-serif" font-size="11"><rect width="${W}" height="${H}" fill="${c("--field")}"/>`;
   for(let v=Math.ceil((s.az0+xA)/step)*step-s.az0;v<=xB+1e-9;v+=step){const az=Math.round(((s.az0+v)%360+360)%360);
@@ -312,6 +374,18 @@ function draw(){if(!last)return;const {s,good,near}=last,cs=getComputedStyle(doc
     const lab=`Moon ${Math.round(mv[0].illum*100)}%`,lw=lab.length*7+4;let spot=null;
     for(const m of [mv[Math.floor(mv.length/2)],mv[0],mv[mv.length-1]]){for(const dy of [-12,22,-26]){const x=X(m.x)-lw/2,y=Y(m.alt)+dy;if(fits(x,y,lw)){spot={x,y};break;}}if(spot)break;}
     if(spot){placed.push({x:spot.x,y:spot.y,w:lw});labels+=`<text x="${spot.x.toFixed(1)}" y="${spot.y.toFixed(1)}" fill="${c("--text")}" stroke="${halo}" stroke-width="4" stroke-linejoin="round" paint-order="stroke" font-size="12" font-weight="bold">${lab}</text>`;}}
+  // planets: a dotted track and a dot at session start, sized by brightness
+  let planetsShown=false;
+  if(ST.settings.showPlanets!==false)for(const p of last.planets||[]){const up=p.pts.filter(q=>q.alt>0);if(!up.length)continue;
+    const pc=c("--planet");let segs=[[]],t="";planetsShown=true;
+    p.pts.forEach(q=>{const cur=segs[segs.length-1];if(q.alt<=0||(cur.length&&Math.abs(q.x-cur[cur.length-1].x)>90)){if(cur.length)segs.push([]);if(q.alt<=0)return;}segs[segs.length-1].push(q);});
+    t+=segs.filter(sg=>sg.length>1).map(sg=>`<polyline fill="none" stroke="${pc}" stroke-width="2" stroke-dasharray="0.5 4" stroke-linecap="round" points="${sg.map(q=>X(q.x).toFixed(1)+","+Y(q.alt).toFixed(1)).join(" ")}"/>`).join("");
+    const q0=up.find(q=>q.x>=xA&&q.x<=xB&&q.alt<=alB)||up[0],rr=p.mag<-3?5.5:p.mag<0?4.5:3.5;   // the dot goes at its first point on the chart
+    t+=`<circle cx="${X(q0.x).toFixed(1)}" cy="${Y(q0.alt).toFixed(1)}" r="${rr}" fill="${pc}" stroke="${c("--field")}" stroke-width="1"/>`;
+    lines+=`<g class="planet">${t}</g>`;up.forEach(q=>pts.push([X(q.x),Y(q.alt)]));
+    const lw=p.name.length*6.6+4;let spot=null;
+    for(const [dx,dy] of [[8,-6],[8,14],[-lw-8,-6],[-lw-8,14],[-lw/2,-10],[-lw/2,20]]){const x=X(q0.x)+dx,y=Y(q0.alt)+dy;if(fits(x,y,lw)){spot={x,y};break;}}
+    if(spot){placed.push({x:spot.x,y:spot.y,w:lw});labels+=`<text x="${spot.x.toFixed(1)}" y="${spot.y.toFixed(1)}" fill="${pc}" stroke="${halo}" stroke-width="4" stroke-linejoin="round" paint-order="stroke" font-size="11" font-style="italic" font-weight="bold">${p.name}</text>`;}}
   all.forEach(([r,dashed])=>{const col=colOf(r),w=dashed?2:2.75,da=dashed?' stroke-dasharray="7 5"':"",id=esc(r.o[0]);let segs=[[]],t="";
     r.path.forEach((p,i)=>{const cur=segs[segs.length-1];if(cur.length&&Math.abs(p[1]-cur[cur.length-1][1])>90)segs.push([]);segs[segs.length-1].push(p);
       if(i&&i%30===0)t+=`<rect x="${X(p[1])-2.5}" y="${Y(p[0])-2.5}" width="5" height="5" fill="${col}"/>`;});
@@ -325,8 +399,9 @@ function draw(){if(!last)return;const {s,good,near}=last,cs=getComputedStyle(doc
     if(!spot){const p=r.path[Math.round((r.bs+r.be)/2)];spot={x:X(p[1])-lw/2,y:Y(p[0])-9};}
     placed.push({x:spot.x,y:spot.y,w:lw});
     labels+=`<g class="trk" data-obj="${id}"><text x="${spot.x.toFixed(1)}" y="${spot.y.toFixed(1)}" fill="${col}" stroke="${halo}" stroke-width="4" stroke-linejoin="round" paint-order="stroke" font-size="12" font-weight="bold">${id}</text></g>`;});
-  g+=lines+labels;   // labels last, so no line is ever drawn across one
-  $("chart").innerHTML=g+`</g></svg>`;legend(groups,c);
+  g+=lines+labels+`<g id="fovg"></g>`;   // labels last, so no line is ever drawn across one; the frame outline on top
+  $("chart").innerHTML=g+`</g></svg>`;legend(groups,c);placeFrame(null);
+  if(planetsShown)$("legend").insertAdjacentHTML("beforeend",`${$("legend").innerHTML?"":"<b>Symbols:</b>"}<span><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="4" fill="${c("--planet")}"/></svg>Planet</span>`);
   const svg=$("chart").querySelector("svg");
   svg.addEventListener("pointermove",e=>{const b=svg.getBoundingClientRect(),x=(e.clientX-b.left)/b.width*W,y=(e.clientY-b.top)/b.height*H;
     if(x<ml||x>W-mr||y<mt||y>H-mb)return;
@@ -499,17 +574,21 @@ function tabStrip(on){const t=(id,l)=>`<button type="button" role="tab" id="tab_
   return `<div class="tabs" role="tablist">${t("sites","Sites")}${t("equip","Equipment")}</div>`;}
 function wireTabs(){$("tab_sites").onclick=()=>openSites(false);$("tab_equip").onclick=()=>openEquip();}
 function openSetup(tab){tab==="equip"?openEquip():openSites(false);}
-function scopeForm(x){const known=SCOPE_PRESETS.some(p=>p.model===x.model);
+const modelOptions=(kind,model)=>{const list=kind==="phone"?PHONE_PRESETS:SCOPE_PRESETS,other=kind==="phone"?"Other phone":"Other",
+  pick=list.some(p=>p.model===model)?model:other;return list.map(p=>`<option${p.model===pick?" selected":""}>${esc(p.model)}</option>`).join("");};
+function scopeForm(x){const ph=isPhone(x);
   return `<div class="grid">
+    <label class="f"><span>Type:</span><select id="qf_kind"><option value="scope"${ph?"":" selected"}>Telescope</option><option value="phone"${ph?" selected":""}>Phone</option></select></label>
+    <label class="f"><span>Model:</span><select id="qf_model">${modelOptions(ph?"phone":"scope",x.model)}</select></label>
     <label class="f"><span>Name:</span><input id="qf_name" maxlength="60" value="${esc(x.name)}" placeholder="My Dwarf Mini"></label>
-    <label class="f"><span>Model:</span><select id="qf_model">${SCOPE_PRESETS.map(p=>`<option${p.model===(known?x.model:"Other")?" selected":""}>${esc(p.model)}</option>`).join("")}</select></label>
-    <div class="f"><span>Field of view W × H (°):</span><div class="pair"><input id="qf_w" type="number" step="0.01" min="0.05" inputmode="decimal" aria-label="Field of view width" value="${x.fov_w}"><input id="qf_h" type="number" step="0.01" min="0.05" inputmode="decimal" aria-label="Field of view height" value="${x.fov_h}"></div></div>
-    <div class="f"><span>Aperture / focal length (mm):</span><div class="pair"><input id="qf_ap" type="number" step="1" inputmode="decimal" aria-label="Aperture" value="${x.aperture??""}"><input id="qf_fl" type="number" step="1" inputmode="decimal" aria-label="Focal length" value="${x.focal??""}"></div></div>
-    <label class="f"><span>Pixel size (µm):</span><input id="qf_px" type="number" step="0.01" inputmode="decimal" value="${x.pixel??""}" placeholder="optional"></label>
-    <label class="f"><span>Mount:</span><select id="qf_mount"><option value="altaz"${x.mount!=="eq"?" selected":""}>Alt-az</option><option value="eq"${x.mount==="eq"?" selected":""}>Equatorial</option></select></label>
-    <label class="f span2"><span>Filters (separate with commas):</span><input id="qf_filters" maxlength="120" value="${esc(x.filters)}" placeholder="Astro, Dual-band"></label>
+    <div class="f"><span id="qf_wlab">Field of view W × H (°):</span><div class="pair"><input id="qf_w" type="number" step="0.01" min="0.05" inputmode="decimal" aria-label="Field of view width" value="${x.fov_w}"><input id="qf_h" type="number" step="0.01" min="0.05" inputmode="decimal" aria-label="Field of view height" value="${x.fov_h}"></div></div>
+    <div class="f span2 ph-only"><span>Telephoto lens W × H (°), zoom (×):</span><div class="pair"><input id="qf_tw" type="number" step="0.1" inputmode="decimal" aria-label="Telephoto field of view width" value="${x.tele_w??""}"><input id="qf_th" type="number" step="0.1" inputmode="decimal" aria-label="Telephoto field of view height" value="${x.tele_h??""}"><input id="qf_tx" type="number" step="1" inputmode="numeric" aria-label="Telephoto zoom" value="${x.tele_x??""}" placeholder="×"></div></div>
+    <div class="f sc-only"><span>Aperture / focal length (mm):</span><div class="pair"><input id="qf_ap" type="number" step="1" inputmode="decimal" aria-label="Aperture" value="${x.aperture??""}"><input id="qf_fl" type="number" step="1" inputmode="decimal" aria-label="Focal length" value="${x.focal??""}"></div></div>
+    <label class="f sc-only"><span>Pixel size (µm):</span><input id="qf_px" type="number" step="0.01" inputmode="decimal" value="${x.pixel??""}" placeholder="optional"></label>
+    <label class="f sc-only"><span>Mount:</span><select id="qf_mount"><option value="altaz"${x.mount!=="eq"?" selected":""}>Alt-az</option><option value="eq"${x.mount==="eq"?" selected":""}>Equatorial</option></select></label>
+    <label class="f span2 sc-only"><span>Filters (separate with commas):</span><input id="qf_filters" maxlength="120" value="${esc(x.filters)}" placeholder="Astro, Dual-band"></label>
   </div>
-  <div class="inline"><button class="btn sm" id="qf_calcbtn" type="button" aria-expanded="false">Calculate from Camera…</button><span class="hint" style="margin:0">For your own telescope and camera: works out the field of view from the sensor and focal length.</span></div>
+  <div class="inline sc-only"><button class="btn sm" id="qf_calcbtn" type="button" aria-expanded="false">Calculate from Camera…</button><span class="hint" style="margin:0">For your own telescope and camera: works out the field of view from the sensor and focal length.</span></div>
   <fieldset class="calc" id="qf_calc" hidden><legend>Field of view calculator</legend><div class="grid">
     <label class="f span2"><span>Camera:</span><select id="qc_cam"><option value="">Other (type the sensor size)</option>${CAMERAS.map((c,i)=>`<option value="${i}">${esc(c[0])}</option>`).join("")}</select></label>
     <div class="f"><span>Sensor W × H (mm):</span><div class="pair"><input id="qc_w" type="number" step="0.01" inputmode="decimal" aria-label="Sensor width"><input id="qc_h" type="number" step="0.01" inputmode="decimal" aria-label="Sensor height"></div></div>
@@ -520,23 +599,33 @@ function scopeForm(x){const known=SCOPE_PRESETS.some(p=>p.model===x.model);
   <div class="inline"><button class="btn sm" id="qc_fill" type="button">Fill In Field of View</button></div></fieldset>
   <label class="f"><span>Notes:</span><textarea id="qf_notes" maxlength="500" placeholder="Firmware version, dew heater, which tripod…">${esc(x.notes)}</textarea></label>
   <p class="hint" id="qf_info" style="margin:0"></p>`;}
-function readScopeForm(){const m=val("qf_model");return {name:val("qf_name"),model:m,fov_w:val("qf_w"),fov_h:val("qf_h"),aperture:val("qf_ap"),focal:val("qf_fl"),pixel:val("qf_px"),mount:val("qf_mount"),filters:val("qf_filters"),notes:val("qf_notes")};}
+function readScopeForm(){const m=val("qf_model"),ph=val("qf_kind")==="phone";
+  return {name:val("qf_name"),model:m,kind:ph?"phone":"scope",fov_w:val("qf_w"),fov_h:val("qf_h"),
+    tele_w:ph?val("qf_tw"):"",tele_h:ph?val("qf_th"):"",tele_x:ph?val("qf_tx"):"",
+    aperture:ph?"":val("qf_ap"),focal:ph?"":val("qf_fl"),pixel:ph?"":val("qf_px"),mount:ph?"altaz":val("qf_mount"),filters:ph?"":val("qf_filters"),notes:val("qf_notes")};}
 function openEquip(){
   const fresh=()=>({...SCOPE_PRESETS[0],id:null,name:SCOPE_PRESETS[0].model,notes:""});
   let sel=scope()?.id??ST.scopes[0]?.id??null,draft=ST.scopes.length?null:fresh();
-  const list=()=>`<select id="ql_list" size="8" aria-label="Your scopes">${ST.scopes.map(x=>`<option value="${x.id}"${!draft&&x.id===sel?" selected":""}>${esc(x.name)}${x.id===scope()?.id?" (in use)":""}</option>`).join("")}${draft?`<option value="new" selected>(new scope)</option>`:""}</select>`;
-  const body=`${tabStrip("equip")}${ST.scopes.length?"":`<p class="welcome">Add the scope you image with. Pick its model and the maker's specs are filled in for you; then the Targets table shows how each object fits in your frame.</p>`}
+  const list=()=>`<select id="ql_list" size="8" aria-label="Your scopes and phones">${ST.scopes.map(x=>`<option value="${x.id}"${!draft&&x.id===sel?" selected":""}>${esc(x.name)}${x.id===scope()?.id?" (in use)":""}</option>`).join("")}${draft?`<option value="new" selected>(new)</option>`:""}</select>`;
+  const body=`${tabStrip("equip")}${ST.scopes.length?"":`<p class="welcome">Add the scope or phone you image with. Pick its model and the maker's specs are filled in for you; then the planner shows how targets fit your frame.</p>`}
     <div class="cols"><div class="stack"><div id="ql_wrap"></div>
-      <div class="inline"><button class="btn sm" id="ql_new" type="button">New Scope</button><button class="btn sm" id="ql_del" type="button">Delete</button></div></div>
+      <div class="inline"><button class="btn sm" id="ql_new" type="button">New…</button><button class="btn sm" id="ql_del" type="button">Delete</button></div></div>
     <div id="ql_form" class="stack"></div></div>`;
   const cur=()=>draft||ST.scopes.find(x=>x.id===sel);
-  const info=()=>{const w=+val("qf_w"),h=+val("qf_h"),ap=+val("qf_ap"),fl=+val("qf_fl"),px=+val("qf_px");
+  const info=()=>{const ph=val("qf_kind")==="phone";
+    document.querySelectorAll("#ql_form .sc-only").forEach(e=>e.hidden=ph);document.querySelectorAll("#ql_form .ph-only").forEach(e=>e.hidden=!ph);
+    if(ph){$("qf_calc").hidden=true;}
+    $("qf_wlab").textContent=ph?"Main lens (1×) W × H (°):":"Field of view W × H (°):";
+    if(ph){const w=+val("qf_w"),h=+val("qf_h"),tw=+val("qf_tw"),th=+val("qf_th");
+      $("qf_info").textContent=[w&&h?`The main lens takes in ${Math.round(w)}° × ${Math.round(h)}° of sky, about a constellation or two.`:"",
+        tw&&th?`The telephoto covers ${tw.toFixed(1)}° × ${th.toFixed(1)}°: room for the Pleiades or the Orion Nebula with its neighbors.`:"",astroMode(val("qf_model"))].filter(Boolean).join(" ");return;}
+    const w=+val("qf_w"),h=+val("qf_h"),ap=+val("qf_ap"),fl=+val("qf_fl"),px=+val("qf_px");
     $("qf_info").textContent=[w&&h?`One frame covers ${Math.round(w*60)}′ × ${Math.round(h*60)}′ of sky (the full Moon is about 31′ across).`:"",ap&&fl?`f/${(fl/ap).toFixed(1)}.`:"",
       px&&fl?`Image scale ${(206.265*px/fl).toFixed(2)}″ per pixel.`:""].filter(Boolean).join(" ")+
       (val("qf_model")==="Other"?" Not a smart scope? Use Calculate from Camera."
         :" Presets are the maker's specs for one frame (no mosaic); change anything that's different on yours.");};
   const load=()=>{$("ql_form").innerHTML=scopeForm(cur());
-    ["qf_w","qf_h","qf_ap","qf_fl","qf_px"].forEach(id=>$(id).addEventListener("input",info));info();
+    ["qf_w","qf_h","qf_ap","qf_fl","qf_px","qf_tw","qf_th"].forEach(id=>$(id).addEventListener("input",info));info();
     // field-of-view calculator
     $("qf_calcbtn").onclick=()=>{const c=$("qf_calc"),open=c.hidden;c.hidden=!open;$("qf_calcbtn").setAttribute("aria-expanded",String(open));
       if(open){if(!val("qc_fl"))$("qc_fl").value=val("qf_fl");if(!val("qc_px"))$("qc_px").value=val("qf_px");calc();$("qc_cam").focus();}};
@@ -552,7 +641,11 @@ function openEquip(){
       if(val("qf_model")!=="Other"){$("qf_model").value="Other";}
       $("qf_calc").hidden=true;$("qf_calcbtn").setAttribute("aria-expanded","false");info();dlgMsg("Field of view filled in. Check it, then save.",true);};
     let prev=val("qf_model");
-    $("qf_model").onchange=()=>{const p=SCOPE_PRESETS.find(q=>q.model===val("qf_model"));
+    $("qf_kind").onchange=()=>{const k=val("qf_kind");$("qf_model").innerHTML=modelOptions(k,"");$("qf_model").selectedIndex=0;$("qf_model").onchange();};
+    $("qf_model").onchange=()=>{if(val("qf_kind")==="phone"){const p=PHONE_PRESETS.find(q=>q.model===val("qf_model"));
+        if(p.model!=="Other phone"){$("qf_w").value=p.fov_w;$("qf_h").value=p.fov_h;$("qf_tw").value=p.tele_w;$("qf_th").value=p.tele_h;$("qf_tx").value=p.tele_x;}
+        const n=val("qf_name").trim();if(!n||n===prev)$("qf_name").value=p.model==="Other phone"?"":p.model;prev=p.model;info();return;}
+      const p=SCOPE_PRESETS.find(q=>q.model===val("qf_model"));
       if(p.model!=="Other"){$("qf_w").value=p.fov_w;$("qf_h").value=p.fov_h;$("qf_ap").value=p.aperture;$("qf_fl").value=p.focal;$("qf_px").value=p.pixel;$("qf_mount").value=p.mount;$("qf_filters").value=p.filters;}
       const n=val("qf_name").trim();if(!n||n===prev)$("qf_name").value=p.model==="Other"?"":p.model;prev=p.model;info();};};
   const relist=()=>{$("ql_wrap").innerHTML=list();
@@ -738,12 +831,15 @@ function wire(){
   if($("admin"))$("admin").onclick=openAdmin;
   $("logoff").onclick=async()=>{try{await api("POST","/api/logout");}catch(e){}location.href="/login";};
   ["t0","t1","dur","mag","unimaged","sb","moonrule","cat_M","cat_C","cat_N"].forEach(id=>$(id).addEventListener("change",()=>{run();saveSettings();}));
-  ["show_const","show_stars","show_mer","show_horiz"].forEach(id=>$(id).addEventListener("change",()=>{readSettings();draw();saveSettings();}));
+  ["show_const","show_stars","show_mer","show_horiz","show_frame","show_planets"].forEach(id=>$(id).addEventListener("change",()=>{readSettings();draw();saveSettings();}));
   $("site").addEventListener("change",()=>{ST.settings.site_id=+$("site").value;setToday();run();saveSettings();});
   $("scope").addEventListener("change",()=>{ST.settings.scope_id=$("scope").value?+$("scope").value:null;run();saveSettings();});
   $("date").addEventListener("change",run);
   const focus=id=>{const svg=$("chart").querySelector("svg");if(!svg)return;svg.classList.toggle("focus",!!id);
-    svg.querySelectorAll(".trk").forEach(t=>t.classList.toggle("hl",t.dataset.obj===id));};
+    svg.querySelectorAll(".trk").forEach(t=>t.classList.toggle("hl",t.dataset.obj===id));placeFrame(id?{id}:null);};
+  $("phonelist").addEventListener("mouseover",e=>{const tr=e.target.closest("tr[data-frame]");if(!tr)return;const [v,alt,lens]=tr.dataset.frame.split(",");
+    placeFrame({v:+v,alt:+alt,lens});const svg=$("chart").querySelector("svg");if(svg&&tr.dataset.obj){svg.classList.add("focus");svg.querySelectorAll(".trk").forEach(t=>t.classList.toggle("hl",t.dataset.obj===tr.dataset.obj));}});
+  $("phonelist").addEventListener("mouseleave",()=>focus(null));
   ["list","near"].forEach(t=>{$(t).addEventListener("mouseover",e=>{const tr=e.target.closest("tr[data-obj]");if(tr)focus(tr.dataset.obj);});
     $(t).addEventListener("mouseleave",()=>focus(null));});
   document.addEventListener("click",e=>{const b=e.target.closest("[data-log]");if(b)openLogEntry(null,b.dataset.log);});

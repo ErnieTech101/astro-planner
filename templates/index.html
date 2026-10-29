@@ -93,7 +93,9 @@
         <label><input type="checkbox" id="show_const" checked> Constellations</label>
         <label><input type="checkbox" id="show_stars" checked> Stars</label>
         <label><input type="checkbox" id="show_mer" checked> Meridian</label>
-        <label><input type="checkbox" id="show_horiz" checked> Horizon</label></div>
+        <label><input type="checkbox" id="show_horiz" checked> Horizon</label>
+        <label><input type="checkbox" id="show_planets" checked> Planets</label>
+        <label><input type="checkbox" id="show_frame" checked> Frame</label></div>
       <div class="sunken" id="chart"></div>
       <div class="legend" id="legend"></div>
       <p class="hint">Yellow box = your clear sky. Each target has its own color, matching the swatch in the tables below; dashed lines are just past your limit. Each track starts with a symbol for the object's type, at its place at session start; small squares mark every 30 minutes after that. The gray line with the round marker is the Moon. The faint stars, constellation figures and dashed meridian show the sky at session start. Point at a table row to highlight its track.</p>
@@ -107,6 +109,16 @@
         <tbody id="win"></tbody>
       </table></div>
       <p class="hint">Your window is fixed to the ground, so the sky slides through it. RA advances about one hour for every hour of clock time, while the Dec range stays the same. LST (local sidereal time) is the RA crossing due south at that moment.</p>
+    </fieldset>
+
+    <fieldset id="phonebox" hidden>
+      <legend>Phone targets <button class="qbtn" type="button" data-help="phone" title="Help: Imaging with a phone" aria-label="Help: Imaging with a phone">?</button></legend>
+      <p class="hint" id="phoneinfo" style="margin-top:0"></p>
+      <div class="sunken"><table>
+        <thead><tr><th>Target</th><th>Mag</th><th>In your box</th><th>Lens</th></tr></thead>
+        <tbody id="phonelist"></tbody>
+      </table></div>
+      <p class="hint">Phone cameras see a lot of sky, so the best phone targets are the big and bright: the Moon, planets, star clusters, the Orion Nebula and whole constellations. The Targets table below still lists everything for your telescope friends.</p>
     </fieldset>
 
     <fieldset>

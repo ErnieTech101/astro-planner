@@ -9,7 +9,7 @@ const HELP = [
 <h4>Your first evening</h4>
 <ol>
 <li><b>Set up your site.</b> The first time you sign in, the Observing Sites window opens. Enter your location, time zone and the part of the sky you can see. See <a href="#" data-topic="site">Setting up your site</a>.</li>
-<li><b>Add your scope.</b> Click <b>Setup</b>, then the <b>Equipment</b> tab, and pick your model. The planner then shows how each target fits your frame. See <a href="#" data-topic="equipment">Your equipment</a>.</li>
+<li><b>Add your scope or phone.</b> Click <b>Setup</b>, then the <b>Equipment</b> tab, and pick your model. The planner then shows how each target fits your frame. See <a href="#" data-topic="equipment">Your equipment</a>.</li>
 <li><b>Pick your session time</b> under <b>Session</b>: the date (the night of) and your start and finish times.</li>
 <li><b>Read the Targets list.</b> Every object there spends at least your chosen time in your window tonight. The <b>In window</b> column says exactly when.</li>
 <li><b>Check the Moon.</b> The <b>Tonight's sky</b> panel and the <b>Moon</b> column warn you when a bright Moon will wash a target out.</li>
@@ -42,7 +42,7 @@ const HELP = [
 
 {id:"equipment", title:"Your equipment", html:`
 <h3>Your equipment</h3>
-<p>Click <b>Setup</b> on the toolbar (or <b>Edit Equipment…</b> under Session) and choose the <b>Equipment</b> tab. Add each telescope you image with; if you have both a Dwarf and a Seestar, add both and pick tonight's with the <b>Scope</b> list under Session.</p>
+<p>Click <b>Setup</b> on the toolbar (or <b>Edit Equipment…</b> under Session) and choose the <b>Equipment</b> tab. Add each telescope or phone you image with (for phones, see <a href="#" data-topic="phone">Imaging with a phone</a>); if you have both a Dwarf and a Seestar, add both and pick tonight's with the <b>Scope</b> list under Session.</p>
 <ul>
 <li><b>Model:</b> picking one fills in the maker's specs: field of view, aperture, focal length, pixel size and built-in filters. Choose <b>Other</b> for anything else, such as a refractor with an astro camera or a DSLR on a lens.</li>
 <li><b>Calculate from Camera…</b> works out the field of view for your own gear. Pick your camera (or type its sensor size in mm), enter the telescope's focal length and any reducer or Barlow, and click <b>Fill In Field of View</b>. The rule behind it: field of view in degrees ≈ 57.3 × sensor size ÷ focal length. A ZWO ASI533 on a 400 mm refractor covers about 1.6° × 1.6°.</li>
@@ -66,6 +66,23 @@ const HELP = [
 <p>The <b>Size / frame</b> column compares each object's size with your field of view. Smart telescopes sit on alt-az mounts, so the frame turns slowly against the sky during a long session (field rotation) and the stacked image gets cropped to the part every frame covered. So <b>Fits</b> means the object fits whichever way the frame turns, with a little room to spare. <b>Snug</b> means it only fits lengthwise; expect the edges to be tight. <b>Too big</b> means more than one frame: use your scope's mosaic mode if it has one, or frame the brightest part.</p>
 <p>On an <b>equatorial</b> mount the frame doesn't turn, and you can rotate the camera to line it up, so an object that fits lengthwise counts as <b>Fits</b>. <b>Small</b> means it covers under 4% of the frame width either way; it will be a speck unless you crop.</p>
 <p class="tip">Catalog sizes are measured on deep photographs, so faint outer parts you won't capture from town are included. An object marked Snug often looks fine.</p>`},
+
+{id:"phone", title:"Imaging with a phone", html:`
+<h3>Imaging with a phone</h3>
+<p>Recent phones have a night or astro mode that takes long exposures from a tripod and stacks them, showing far more stars than your eye can. The planner can help you plan for one.</p>
+<ol>
+<li>Click <b>Setup → Equipment → New…</b>, set <b>Type</b> to <b>Phone</b>, and pick your model. Its main lens and telephoto lens fields of view are filled in. Choose <b>Other phone</b> for anything not listed and type in the numbers (or leave the main lens as it is: most phones are close).</li>
+<li>Choose the phone in the <b>Scope</b> list under Session.</li>
+<li>A <b>Phone targets</b> table appears above Targets. It lists what's big and bright enough for a phone tonight that passes through your box: the Moon, planets, bright star clusters and nebulae, and whole constellations, with when and which lens to use.</li>
+<li>Point at a row to see the frame on the chart.</li>
+</ol>
+<table class="hk">
+<tr><th>Phone</th><th>Astro mode</th></tr>
+<tr><td>Google Pixel</td><td>Night Sight switches to Astrophotography by itself when the phone is still, with exposures up to 4 minutes.</td></tr>
+<tr><td>iPhone</td><td>Night mode. On a tripod the timer goes up to 30 seconds; slide it to Max.</td></tr>
+<tr><td>Samsung Galaxy</td><td>The free Expert RAW app has an Astrophoto mode, 4 to 10 minutes.</td></tr>
+</table>
+<p class="tip">From a bright town sky, phones do best with the Moon, planets, bright clusters and constellation shots; the Milky Way needs a dark site. A sturdy tripod and the self-timer (or a Bluetooth remote) keep the stars sharp.</p>`},
 
 {id:"plan", title:"Planning a session", html:`
 <h3>Planning a session</h3>
@@ -103,7 +120,9 @@ const HELP = [
 <li>In the background, faint <b>stars</b> (brighter ones are bigger), <b>constellation figures</b> and names show the sky as it stands at your start time, so you can tell where your box sits among the patterns you know. The stars go down to magnitude 5, a little fainter than you'll see from a city.</li>
 <li>The dashed line is the <b>meridian</b>, the line due south (and due north) through the point overhead. Every object is highest when it crosses it; that's the Transit time in the tables. Imaging near the meridian means looking through the least air.</li>
 <li>Along the bottom, a little <b>skyline</b> of houses, trees and poles marks the ground. It's for looks, not a map of your real view: each site gets its own street, and it always stays below your sky box. Your box is what tells the planner where you can actually see.</li>
-<li>Use <b>Show</b> above the chart to turn constellations, stars, the meridian or the horizon skyline off. Your choice is remembered.</li>
+<li><b>Planets</b> are brown dots (bigger when brighter) with a dotted track, labeled by name. The <b>Tonight's sky</b> panel lists each one that's up, how high, which way, and whether it passes through your box.</li>
+<li>The dashed black rectangle is your <b>frame</b>: how much sky one shot with your chosen scope or phone covers. It sits in the middle of your box; point at a row in the Targets table (or the Phone targets table) and it moves onto that target, so you can see how it will fit.</li>
+<li>Use <b>Show</b> above the chart to turn constellations, stars, the meridian, the horizon skyline, planets or the frame off. Your choice is remembered.</li>
 <li><b>Point at a row</b> in the Targets table to highlight that target's path and fade the others. On a busy night, this is the easiest way to read the chart.</li>
 <li><b>Point at any spot</b> on the chart to read its compass direction, height, RA and Dec (at your start time) under the chart.</li>
 </ul>

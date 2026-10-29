@@ -8,7 +8,7 @@ import secrets
 import sqlite3
 from contextlib import contextmanager
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS users (
@@ -79,6 +79,10 @@ CREATE TABLE IF NOT EXISTS scopes (
     focal     REAL,
     pixel     REAL,
     mount     TEXT NOT NULL DEFAULT 'altaz',
+    kind      TEXT NOT NULL DEFAULT 'scope',
+    tele_w    REAL,
+    tele_h    REAL,
+    tele_x    REAL,
     filters   TEXT NOT NULL DEFAULT '',
     notes     TEXT NOT NULL DEFAULT ''
 );
@@ -110,6 +114,10 @@ MIGRATIONS = [
     ("log", "scope_id", "INTEGER REFERENCES scopes(id) ON DELETE SET NULL"),   # 1.5.2
     ("scopes", "pixel", "REAL"),                                                 # 1.5.3
     ("scopes", "mount", "TEXT NOT NULL DEFAULT 'altaz'"),                        # 1.5.3
+    ("scopes", "kind", "TEXT NOT NULL DEFAULT 'scope'"),                         # 1.5.5: 'scope' or 'phone'
+    ("scopes", "tele_w", "REAL"),                                                # 1.5.5: phone telephoto lens
+    ("scopes", "tele_h", "REAL"),
+    ("scopes", "tele_x", "REAL"),
 ]
 
 

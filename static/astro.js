@@ -101,6 +101,33 @@ function transitOf(o,tRef,lat,lon){const [ra,dec]=precess(o[3],o[4],(tRef-J2000)
   return {t:tRef-H/360.9856*864e5,alt:90-Math.abs(lat-dec)};}
 function phaseName(e,k){if(k>=0.97)return "Full Moon";if(k<=0.03)return "New Moon";
   return e<84?"Waxing crescent":e<96?"First quarter":e<180?"Waxing gibbous":e<264?"Waning gibbous":e<276?"Last quarter":"Waning crescent";}
+// Planets: Keplerian elements and rates per century from JPL's "Approximate Positions of the Planets"
+// (E. M. Standish, table 1, 1800-2050), J2000 ecliptic. Good to a few arcminutes, plenty for a chart.
+// Each row: name, a, e, I, L, long. perihelion, long. node, then their rates; and H + phase coeffs for magnitude.
+const PLANETS=[
+  ["Mercury",[0.38709927,0.20563593,7.00497902,252.25032350,77.45779628,48.33076593],[0.00000037,0.00001906,-0.00594749,149472.67411175,0.16047689,-0.12534081],m=>-0.42+0.0380*m-0.000273*m*m+0.000002*m*m*m],
+  ["Venus",[0.72333566,0.00677672,3.39467605,181.97909950,131.60246718,76.67984255],[0.00000390,-0.00004107,-0.00078890,58517.81538729,0.00268329,-0.27769418],m=>-4.40+0.0009*m+0.000239*m*m-0.00000065*m*m*m],
+  ["Earth",[1.00000261,0.01671123,-0.00001531,100.46457166,102.93768193,0],[0.00000562,-0.00004392,-0.01294668,35999.37244981,0.32327364,0],null],
+  ["Mars",[1.52371034,0.09339410,1.84969142,-4.55343205,-23.94362959,49.55953891],[0.00001847,0.00007882,-0.00813131,19140.30268499,0.44441088,-0.29257343],m=>-1.52+0.016*m],
+  ["Jupiter",[5.20288700,0.04838624,1.30439695,34.39644051,14.72847983,100.47390909],[-0.00011607,-0.00013253,-0.00183714,3034.74612775,0.21252668,0.20469106],m=>-9.40+0.005*m],
+  ["Saturn",[9.53667594,0.05386179,2.48599187,49.95424423,92.59887831,113.66242448],[-0.00125060,-0.00050991,0.00193609,1222.49362201,-0.41897216,-0.28867794],m=>-8.88]];
+function helio(el,rt,T){const [a,e,I,L,w,N]=el.map((v,i)=>v+rt[i]*T);
+  let M=nrm(L-w);if(M>180)M-=360;let E=M+(180/Math.PI)*e*sind(M);
+  for(let i=0;i<6;i++){const dE=(M-(E-(180/Math.PI)*e*sind(E)))/(1-e*cosd(E));E+=dE;if(Math.abs(dE)<1e-7)break;}
+  const xp=a*(cosd(E)-e),yp=a*Math.sqrt(1-e*e)*sind(E),om=w-N;
+  const x=(cosd(om)*cosd(N)-sind(om)*sind(N)*cosd(I))*xp+(-sind(om)*cosd(N)-cosd(om)*sind(N)*cosd(I))*yp;
+  const y=(cosd(om)*sind(N)+sind(om)*cosd(N)*cosd(I))*xp+(-sind(om)*sind(N)+cosd(om)*cosd(N)*cosd(I))*yp;
+  const z=(sind(om)*sind(I))*xp+(cosd(om)*sind(I))*yp;return [x,y,z];}
+// Geocentric positions for the equinox of date (like sunPos/moonPos), with apparent magnitude.
+function planetsAt(ms){const T=jcent(ms),E=helio(PLANETS[2][1],PLANETS[2][2],T),out=[];
+  for(const [name,el,rt,mag] of PLANETS){if(!mag)continue;
+    let p=helio(el,rt,T),d=p.map((v,i)=>v-E[i]),D=Math.hypot(...d);
+    p=helio(el,rt,T-D*0.0057755/36525);d=p.map((v,i)=>v-E[i]);D=Math.hypot(...d);   // light time
+    const r=Math.hypot(...p),lam=nrm(Math.atan2(d[1],d[0])/R+1.396971*T),bet=Math.asin(d[2]/D)/R;
+    const re=Math.hypot(...E),ph=Math.acos(Math.max(-1,Math.min(1,(r*r+D*D-re*re)/(2*r*D))))/R;
+    const [ra,dec]=eclToEq(lam,bet,T);out.push({name,ra,dec,dist:D,mag:mag(ph)+5*Math.log10(r*D)});}
+  return out;}
+
 function sepDeg(ra1,d1,ra2,d2){return Math.acos(Math.min(1,sind(d1)*sind(d2)+cosd(d1)*cosd(d2)*cosd(ra1-ra2)))/R;}
 const MOON_UP=-0.8, SUN_UP=-0.833;   // centre altitude at rise/set: refraction plus semi-diameter
 // Times when f(ms) crosses level between t0 and t1 (scan every 5 minutes, refine by bisection).
