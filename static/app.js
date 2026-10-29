@@ -16,7 +16,7 @@ async function api(method,url,body){
   return j;
 }
 
-const DEF={mag:6,dur:60,t0:"19:00",t1:"21:00",site_id:null,unimagedFirst:false,red:false,setupDone:true,cats:"MCN",sb:0,moonRule:"show",showConst:true,showStars:true,showMer:true,scope_id:null};
+const DEF={mag:6,dur:60,t0:"19:00",t1:"21:00",site_id:null,unimagedFirst:false,red:false,setupDone:true,cats:"MCN",sb:0,moonRule:"show",showConst:true,showStars:true,showMer:true,showHoriz:true,scope_id:null};
 let ST={me:{},settings:{...DEF},sites:[],scopes:[],log:[]};
 let last=null,totals=new Map();
 const COMMON_TZ=[["America/New_York","Eastern"],["America/Chicago","Central"],["America/Denver","Mountain"],
@@ -74,11 +74,11 @@ function applySettings(){const s=ST.settings;
   setSel($("mag"),Number(s.mag).toFixed(1),"6.0");$("unimaged").checked=!!s.unimagedFirst;
   setSel($("sb"),s.sb,0);setSel($("moonrule"),s.moonRule,"show");
   for(const c of "MCN")$("cat_"+c).checked=String(s.cats??"MCN").includes(c);
-  $("show_const").checked=s.showConst!==false;$("show_stars").checked=s.showStars!==false;$("show_mer").checked=s.showMer!==false;}
+  $("show_const").checked=s.showConst!==false;$("show_stars").checked=s.showStars!==false;$("show_mer").checked=s.showMer!==false;$("show_horiz").checked=s.showHoriz!==false;}
 function readSettings(){Object.assign(ST.settings,{t0:$("t0").value,t1:$("t1").value,dur:+$("dur").value,mag:+$("mag").value,
   site_id:+$("site").value||ST.settings.site_id,unimagedFirst:$("unimaged").checked,
   sb:+$("sb").value,moonRule:$("moonrule").value,cats:[..."MCN"].filter(c=>$("cat_"+c).checked).join(""),
-  showConst:$("show_const").checked,showStars:$("show_stars").checked,showMer:$("show_mer").checked});}
+  showConst:$("show_const").checked,showStars:$("show_stars").checked,showMer:$("show_mer").checked,showHoriz:$("show_horiz").checked});}
 let saveT;
 function saveSettings(){clearTimeout(saveT);saveT=setTimeout(saveSettingsNow,700);}
 function saveSettingsNow(){clearTimeout(saveT);return api("PUT","/api/settings",ST.settings).catch(e=>flash("Couldn't save settings: "+e.message,true));}
@@ -245,6 +245,38 @@ function skyLayer(s,X,Y,xA,xB,alB,c,pts,placed){const st=ST.settings,t=s.t0;let 
     out+=`<text class="sky" x="${lx.toFixed(1)}" y="${(Y(alB)+12).toFixed(1)}" fill="${c("--meridian")}" font-size="10">${lab}</text>`;
     placed.push({x:lx,y:Y(alB)+12,w});}
   return out;}
+// A decorative suburban skyline along the bottom of the chart: houses, trees, poles and wires.
+// Random but repeatable: each site gets its own skyline, the same every time. It stays below the sky box,
+// hides the faint stars behind it, and is drawn under the target tracks so nothing is lost.
+function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function horizonLayer(s,Y,x0,x1,c,seed){
+  const g0=Y(0),room=g0-Y(Math.max(1,s.al0)),hmax=Math.max(10,Math.min(64,room*0.72)),R=rng(seed),r=(a,b)=>a+(b-a)*R();
+  const f=v=>v.toFixed(1);let body="",lit="",wires="",poles=[],mast=false,x=x0-8;
+  const rect=(x,y,w,h)=>`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"/>`;
+  const win=(x,y)=>{if(R()<0.35)lit+=rect(x,y,4,4);};
+  while(x<x1+10){const k=R();let w;
+    if(k<0.28){w=r(22,38);const h=hmax*r(0.5,0.85),cx=x+w/2;               // round tree
+      body+=rect(cx-1.5,g0-h*0.45,3,h*0.45)+`<circle cx="${f(cx)}" cy="${f(g0-h*0.62)}" r="${f(w*0.36)}"/><circle cx="${f(cx-w*0.2)}" cy="${f(g0-h*0.5)}" r="${f(w*0.28)}"/><circle cx="${f(cx+w*0.22)}" cy="${f(g0-h*0.52)}" r="${f(w*0.27)}"/>`;}
+    else if(k<0.42){w=r(12,20);const h=hmax*r(0.65,1),cx=x+w/2;              // pine
+      body+=`<polygon points="${f(x)},${f(g0-h*0.08)} ${f(cx)},${f(g0-h)} ${f(x+w)},${f(g0-h*0.08)}"/>`+rect(cx-1,g0-h*0.1,2,h*0.1);}
+    else if(k<0.72){w=r(34,58);const wh=hmax*r(0.28,0.4),rh=hmax*r(0.18,0.28);   // house with gable roof
+      body+=rect(x,g0-wh,w,wh)+`<polygon points="${f(x-3)},${f(g0-wh)} ${f(x+w/2)},${f(g0-wh-rh)} ${f(x+w+3)},${f(g0-wh)}"/>`;
+      if(R()<0.6)body+=rect(x+w*0.7,g0-wh-rh*0.9,4,rh*0.6);
+      win(x+w*0.2,g0-wh*0.65);win(x+w*0.65,g0-wh*0.65);
+      if(!mast&&R()<0.25){mast=true;const mx=x+w*0.25,top=g0-wh-rh-hmax*0.35;  // a rooftop antenna
+        body+=rect(mx,top,1.5,hmax*0.35+rh*0.4)+rect(mx-9,top+2,19.5,1.3)+[-8,-4,0,4,8].map(d=>rect(mx+d,top-1,1.2,7)).join("");}}
+    else if(k<0.82){w=r(28,38);const wh=hmax*r(0.5,0.62),rh=hmax*r(0.12,0.2);  // two-storey house
+      body+=rect(x,g0-wh,w,wh)+`<polygon points="${f(x-2)},${f(g0-wh)} ${f(x+w/2)},${f(g0-wh-rh)} ${f(x+w+2)},${f(g0-wh)}"/>`;
+      win(x+w*0.2,g0-wh*0.8);win(x+w*0.62,g0-wh*0.8);win(x+w*0.4,g0-wh*0.35);}
+    else if(k<0.9){w=r(6,10);const h=hmax*r(0.75,0.9),px=x+w/2;              // utility pole
+      body+=rect(px-1.2,g0-h,2.4,h)+rect(px-7,g0-h+3,14,1.6);poles.push([px,g0-h+4]);}
+    else w=r(8,26);                                                         // a gap: lawn
+    x+=w+r(2,9);}
+  for(let i=1;i<poles.length;i++){const [ax,ay]=poles[i-1],[bx,by]=poles[i];if(bx-ax>260)continue;
+    for(const d of [-5,5])wires+=`<path d="M${f(ax+d)} ${f(ay)} Q${f((ax+bx)/2+d)} ${f((ay+by)/2+10)} ${f(bx+d)} ${f(by)}"/>`;}
+  return `<g class="horizon"><rect x="${x0}" y="${f(g0-2)}" width="${x1-x0}" height="4" fill="${c("--ground")}"/>`+
+    `<g fill="${c("--ground")}">${body}</g><g fill="none" stroke="${c("--ground")}" stroke-width="0.8">${wires}</g>`+
+    `<g fill="${c("--window")}">${lit}</g></g>`;}
 function legend(groups,c){const el=$("legend");if(!el)return;
   if(!groups.size){el.innerHTML="";return;}
   el.innerHTML="<b>Symbols:</b>"+SYM_GROUPS.filter(([g])=>groups.has(g)).map(([g,ts])=>
@@ -265,6 +297,7 @@ function draw(){if(!last)return;const {s,good,near}=last,cs=getComputedStyle(doc
   // every track's points in screen units, so labels can steer clear of all lines, not just other labels
   const pts=all.flatMap(([r])=>r.path.filter((_,i)=>i%2===0).map(p=>[X(p[1]),Y(p[0])]));
   g+=skyLayer(s,X,Y,xA,xB,alB,c,pts,placed);
+  if(ST.settings.showHoriz!==false)g+=horizonLayer(s,Y,ml,W-mr,c,(site()?.id||1)*7919+13);
   const fits=(x,y,w)=>x>ml+2&&x+w<W-mr-2&&y-12>mt&&y+3<H-mb
     &&!placed.some(q=>x<q.x+q.w+4&&x+w+4>q.x&&Math.abs(q.y-y)<15)
     &&!pts.some(([px,py])=>px>x-3&&px<x+w+3&&py>y-14&&py<y+5);
@@ -705,7 +738,7 @@ function wire(){
   if($("admin"))$("admin").onclick=openAdmin;
   $("logoff").onclick=async()=>{try{await api("POST","/api/logout");}catch(e){}location.href="/login";};
   ["t0","t1","dur","mag","unimaged","sb","moonrule","cat_M","cat_C","cat_N"].forEach(id=>$(id).addEventListener("change",()=>{run();saveSettings();}));
-  ["show_const","show_stars","show_mer"].forEach(id=>$(id).addEventListener("change",()=>{readSettings();draw();saveSettings();}));
+  ["show_const","show_stars","show_mer","show_horiz"].forEach(id=>$(id).addEventListener("change",()=>{readSettings();draw();saveSettings();}));
   $("site").addEventListener("change",()=>{ST.settings.site_id=+$("site").value;setToday();run();saveSettings();});
   $("scope").addEventListener("change",()=>{ST.settings.scope_id=$("scope").value?+$("scope").value:null;run();saveSettings();});
   $("date").addEventListener("change",run);

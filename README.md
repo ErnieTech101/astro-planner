@@ -22,7 +22,7 @@ Most planning tools assume a dark site and an open horizon. In a city or suburba
 - **Surface brightness filter** for galaxies and nebulae, so large, diffuse objects that drown in city light can be filtered out even when their total magnitude looks bright.
 - **The Moon:** phase picture, percent lit, rise and set times, its track on the chart, and each target's distance from it, flagged when a bright Moon is too close. Optionally hides targets the Moon washes out.
 - **Darkness:** sunset and astronomical twilight times, with a note when your session starts before full dark.
-- **Sky box chart** showing your window and each target's track across it, with 30-minute markers, atlas-style type symbols, and a faint background of bright stars, constellation figures and the meridian (each can be turned off).
+- **Sky box chart** showing your window and each target's track across it, with 30-minute markers, atlas-style type symbols, and a faint background of bright stars, constellation figures and the meridian, and a skyline of houses and trees along the horizon (each can be turned off).
 - **Sidereal time and transit:** local sidereal time at the start and end of your session, and when each target crosses the meridian (its highest point) and how high it gets.
 - **RA and Dec everywhere.** Each target shows J2000 coordinates, the window's RA/Dec footprint is shown at the start and end of the session, and pointing at the chart reads out RA/Dec at that spot.
 - **Prev / Tonight / Next** buttons to scan ahead through the season.
@@ -154,6 +154,7 @@ Found a problem? Please open an issue rather than posting details publicly.
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.5.4 | 2026-10-29 | Sky box chart: a decorative skyline of houses, trees and poles along the horizon, different for each site, with a Horizon checkbox under Show |
 | 1.5.3 | 2026-10-25 | Field-of-view calculator for any telescope and camera; pixel size and image scale; alt-az or equatorial mount, with an EQ-aware frame check. Small automatic database upgrade |
 | 1.5.2 | 2026-10-25 | Setup window with Sites and Equipment tabs; scope presets; Scope list under Session; Size / frame column; scope recorded in the log, CSV and My Log totals; club scope counts in Club Stats. Database upgrade (scopes table, log scope column) runs automatically |
 | 1.5.1 | 2026-10-25 | Sky box chart: bright stars, constellation figures and names, a meridian line, and object-type symbols with a key; Show checkboxes, remembered per member |

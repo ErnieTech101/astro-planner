@@ -102,7 +102,8 @@ const HELP = [
 <li>The thick <b>gray line</b> with a round marker is the <b>Moon</b>, when it's in view.</li>
 <li>In the background, faint <b>stars</b> (brighter ones are bigger), <b>constellation figures</b> and names show the sky as it stands at your start time, so you can tell where your box sits among the patterns you know. The stars go down to magnitude 5, a little fainter than you'll see from a city.</li>
 <li>The dashed line is the <b>meridian</b>, the line due south (and due north) through the point overhead. Every object is highest when it crosses it; that's the Transit time in the tables. Imaging near the meridian means looking through the least air.</li>
-<li>Use <b>Show</b> above the chart to turn constellations, stars or the meridian off. Your choice is remembered.</li>
+<li>Along the bottom, a little <b>skyline</b> of houses, trees and poles marks the ground. It's for looks, not a map of your real view: each site gets its own street, and it always stays below your sky box. Your box is what tells the planner where you can actually see.</li>
+<li>Use <b>Show</b> above the chart to turn constellations, stars, the meridian or the horizon skyline off. Your choice is remembered.</li>
 <li><b>Point at a row</b> in the Targets table to highlight that target's path and fade the others. On a busy night, this is the easiest way to read the chart.</li>
 <li><b>Point at any spot</b> on the chart to read its compass direction, height, RA and Dec (at your start time) under the chart.</li>
 </ul>
