@@ -3,6 +3,9 @@
 Write them for members, not administrators: what they'll notice and how to use it.
 """
 CHANGELOG = [
+    ("1.5.4", "2026-10-29", [
+        "The sky box chart now has a little neighborhood along the bottom: houses, trees, utility poles and the odd lit window. Each site gets its own street. Don't like it? Untick Horizon under Show.",
+    ]),
     ("1.5.3", "2026-10-25", [
         "Not a smart scope? Setup → Equipment now has Calculate from Camera: pick your camera (ZWO models, DSLR and mirrorless sizes) or type the sensor size, enter the focal length and any reducer, and it fills in the field of view.",
         "Equipment now has Pixel size, which shows your image scale in arcseconds per pixel, and Mount: alt-az or equatorial. On an equatorial mount the frame doesn't rotate, so the Size / frame check is less cautious.",

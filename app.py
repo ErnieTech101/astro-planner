@@ -25,7 +25,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import db
 from changelog import CHANGELOG, news_since
 
-VERSION = "1.5.3"
+VERSION = "1.5.4"
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.environ.get("AIP_DB", os.path.join(HERE, "planner.db"))
 
@@ -51,7 +51,7 @@ TIMEZONES = available_timezones()
 INACTIVE_DAYS = int(os.environ.get("AIP_INACTIVE_DAYS", "90"))
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
 SETTINGS_KEYS = {"mag", "dur", "t0", "t1", "site_id", "unimagedFirst", "red", "setupDone", "cats", "sb", "moonRule",
-                 "showConst", "showStars", "showMer", "scope_id"}
+                 "showConst", "showStars", "showMer", "showHoriz", "scope_id"}
 # Compared against when the username doesn't exist, so a wrong username takes as long as a wrong password.
 _DUMMY_HASH = generate_password_hash(secrets.token_hex(16))
 

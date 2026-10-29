@@ -3,7 +3,7 @@
   --desk:#008080; --face:#c0c0c0; --hi:#ffffff; --lo:#808080; --dk:#000000; --text:#000000;
   --title:#000080; --title2:#1084d0; --titletext:#ffffff; --field:#ffffff; --sel:#000080; --seltext:#ffffff;
   --grid:#d4d4d4; --box:#fff8c0; --boxline:#000080; --track:#c00000; --dim:#808080; --good:#006400; --warn:#a05a00; --bad:#b00000;
-  --skyline:#b3bfd9; --skystar:#5c6680; --skyname:#7f8db0; --meridian:#6b7a99;
+  --skyline:#b3bfd9; --skystar:#5c6680; --skyname:#7f8db0; --meridian:#6b7a99; --ground:#2e3a33; --window:#ffd84a;
   --ui:Tahoma,Verdana,"MS Sans Serif",Geneva,sans-serif; --mono:"Courier New",Courier,monospace;
   color-scheme:light;
 }
@@ -11,7 +11,7 @@ body.red{
   --desk:#000; --face:#1a0000; --hi:#5a0d06; --lo:#000; --dk:#000; --text:#ff3b26;
   --title:#3a0000; --title2:#6a0a00; --titletext:#ff6a50; --field:#000; --sel:#7a1000; --seltext:#ffb0a0;
   --grid:#2a0603; --box:#2a0603; --boxline:#ff3b26; --track:#ff3b26; --dim:#7a1a10; --good:#ff6a50; --warn:#ff8a60; --bad:#ffb0a0;
-  --skyline:#5a140c; --skystar:#a0301c; --skyname:#7a2414; --meridian:#8a2a18;
+  --skyline:#5a140c; --skystar:#a0301c; --skyname:#7a2414; --meridian:#8a2a18; --ground:#3a0802; --window:#a0301c;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
